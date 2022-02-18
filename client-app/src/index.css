@@ -5,9 +5,42 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: azure !important;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+.connectForm {
+  width: 50%;
+  margin: auto;
+  padding: 50px;
+  font-size: 25px;
+}
+
+.connectTitle {
+  margin: auto;
+  text-align: center;
+  padding: 50px;
+}
+
+.connectComponent {
+  margin: auto;
+  padding: 10%;
+}
+
+.connectBackground {
+  margin: auto;
+  width: 75%;
+  background-color: white;
+  border-radius: 30px;
+  border: 2px solid darkgrey;
+  box-shadow: 3px 3px 3px 3px dimgray;
+}
+
+.opponentButtons {
+  width: 300px;
+  height: 100px;
 }
