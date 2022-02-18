@@ -1,7 +1,10 @@
 import React from 'react';
+import { Player } from '../../models/player';
 
-
-export interface GameProps{}
+export interface GameProps{
+  onPageChange: Function;
+  player: Player;
+}
 
 export interface GameStates{}
 

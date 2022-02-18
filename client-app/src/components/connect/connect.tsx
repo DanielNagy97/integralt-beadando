@@ -3,18 +3,22 @@ import { RequestType } from '../../scripts/connectionHandler/messages/requestTyp
 import { NewPlayerPayload, PlayerListPayload } from '../../scripts/connectionHandler/messages/responses';
 import { SocketMessage } from '../../scripts/connectionHandler/messages/socketMessage';
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
+import { Player } from '../../models/player';
 
-interface Player {
-  id: String,
-  name: String
+export interface ConnectProps {
+  onPageChange: Function;
+  onPlayerConnect: Function;
 }
 
-export interface ConnectProps { }
-export interface ConnectStates { messageHandler: PlayerSocketMessageHandler, player: Player }
+export interface ConnectStates { 
+  messageHandler: PlayerSocketMessageHandler,
+  player: Player 
+}
 
 class Connect extends React.Component<ConnectProps, ConnectStates> {
   constructor(props: ConnectProps) {
     super(props)
+    
     this.state = {
       messageHandler: new PlayerSocketMessageHandler(),
       player: {
@@ -55,6 +59,9 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
       }
     });
     this.state.messageHandler.newPlayer("test-name");
+
+    this.props.onPlayerConnect(this.state.player)
+    this.props.onPageChange('game')
   }
 
   listPlayers() {
@@ -72,7 +79,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
         <p>Connect component works</p>
         <button onClick={() => this.connect()}>Connect with name</button>
         <button onClick={() => this.listPlayers()}>Player List</button>
-        <button onClick={() => this.leave()}>Leave</button>
+        {/*<button onClick={() => this.leave()}>Leave</button>*/}
       </div>
     );
   }
