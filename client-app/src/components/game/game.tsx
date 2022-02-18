@@ -15,7 +15,10 @@ class Game extends React.Component<GameProps, GameStates> {
 
   render() {
     return (
-        <div><p>Game component works</p></div>
+        <div>
+          <p>Game component works</p> 
+          <p>{this.props.player.name}</p>
+        </div>
     );
   }
 }
