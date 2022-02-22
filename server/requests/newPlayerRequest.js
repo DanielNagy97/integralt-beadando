@@ -18,12 +18,15 @@ module.exports = function newPlayer(connection, response) {
     };
     connection.send(JSON.stringify(payLoad));
 
-    players.values().forEach(element => {
-        element.connection.send(JSON.stringify({
+    const toPlayers = players.values();
+    const currentPlayer = toPlayers.next();
+
+    while (!currentPlayer.done) {
+        currentPlayer.value.connection.send(JSON.stringify({
             "type": "playerList",
             "payload": {
                 "list": playerListMaker()
             }
         }))
-    });
+    }
 }
