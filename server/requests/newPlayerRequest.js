@@ -19,7 +19,7 @@ module.exports = function newPlayer(connection, response) {
     connection.send(JSON.stringify(payLoad));
 
     const playersIterator = players.values();
-    const currentPlayer = playersIterator.next();
+    var currentPlayer = playersIterator.next();
 
     while (!currentPlayer.done) {
         currentPlayer.value.connection.send(JSON.stringify({
