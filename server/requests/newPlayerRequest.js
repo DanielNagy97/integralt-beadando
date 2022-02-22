@@ -10,6 +10,8 @@ module.exports = function newPlayer(connection, response) {
         "name": response.payload.name
     });
 
+    console.log("Added new player " + playerId + " named " + response.payload.name);
+
     const payLoad = {
         "type": "newPlayer",
         "payload": {

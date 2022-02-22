@@ -17,10 +17,12 @@ const wsServer = new websocketServer({
 
 wsServer.on("request", request => {
     const connection = request.accept(null, request.origin);
-    connection.on("open", () => console.log("opened!"));
-    connection.on("close", () => console.log("closed!"));
+    connection.on("open", () => console.log("Opened connection"));
+    connection.on("close", () => console.log("Closed connection"));
     connection.on("message", message => {
         const response = JSON.parse(message.utf8Data);
+        console.log("Client sent:");
+        console.log(response);
         if (response.type == "newPlayer") {
             newPlayerRequest(connection, response);
         }

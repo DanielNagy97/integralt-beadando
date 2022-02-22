@@ -8,5 +8,13 @@ module.exports = function playerList(response) {
             "list": playerListMaker()
         }
     };
-    players[response.payLoad.id].send(JSON.stringify(payLoad));
+
+    if (players.has(response.payload.id)) {
+        players.get(response.payload.id).connection.send(JSON.stringify(payLoad));
+        console.log("Sent player list to player " + response.payload.id + " named " + players.get(response.payload.id).name + ".");
+    }
+    else {
+        console.warn("No player with id " + response.payload.id + ". Nothing sent.");
+    }
+
 }
