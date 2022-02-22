@@ -48,13 +48,17 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
       // Ez azért van itt, hogy ne kintről legyen módosítva a state,
       // ha meg lehet szépen oldani, majd bekerülne PlayerSocketMessageHandler-be!
       if (response.type === RequestType.newPlayer) {
+        
         const payload: NewPlayerPayload = response.payload;
+        /*
         this.setState({
           player: {
             ...this.state.player,
             id: payload.id
           }
         });
+        */
+        console.log(payload);
       }
       else if (response.type === RequestType.playerList) {
         const payload: PlayerListPayload = response.payload;
@@ -71,13 +75,14 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
         name: playerName
       }
     });
-    this.state.messageHandler.newPlayer(playerName);
+    //this.state.messageHandler.newPlayer(playerName);
 
     this.props.onPlayerConnect(this.state.player)
     this.props.onPageChange('game')
   }
 
   validateName = (event: any) => {
+    this.state.messageHandler.newPlayer("Sanyi");
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
       event.preventDefault();
@@ -128,6 +133,8 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
 
   render() {
     console.log(this.state);
+
+    
     return (
       <div className={'connectComponent'}>
         {/*
