@@ -18,8 +18,8 @@ module.exports = function newPlayer(connection, response) {
     };
     connection.send(JSON.stringify(payLoad));
 
-    const toPlayers = players.values();
-    const currentPlayer = toPlayers.next();
+    const playersIterator = players.values();
+    const currentPlayer = playersIterator.next();
 
     while (!currentPlayer.done) {
         currentPlayer.value.connection.send(JSON.stringify({
@@ -28,5 +28,6 @@ module.exports = function newPlayer(connection, response) {
                 "list": playerListMaker()
             }
         }))
+        currentPlayer = playersIterator.next();
     }
 }

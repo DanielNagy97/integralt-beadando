@@ -2,8 +2,13 @@ const { players } = require("../data/hashmaps");
 
 module.exports = function playerList() {
     var playerList = []
-    players.values().forEach(element => {
-        playerList.push(element.name);
-    });
+
+    const playersIterator = players.values();
+    var currentPlayer = playersIterator.next();
+
+    while (!currentPlayer.done) {
+        playerList.push(currentPlayer.value.name);
+        currentPlayer = playersIterator.next();
+    }
     return playerList;
 }
