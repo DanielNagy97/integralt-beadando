@@ -3,11 +3,7 @@ import './App.css';
 import Connect from './components/connect/connect';
 import Game from './components/game/game';
 import { Player } from '../src/models/player';
-
-export enum Pages {
-  CONNECT = 'connect',
-  GAME = 'game'
-}
+import { Pages } from '../src/enums/pages';
 
 export interface AppProps {}
 
