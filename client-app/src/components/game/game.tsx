@@ -1,4 +1,5 @@
 import React from 'react';
+import * as BS from 'react-bootstrap';
 import { Player } from '../../models/player';
 
 export interface GameProps{
@@ -15,9 +16,23 @@ class Game extends React.Component<GameProps, GameStates> {
 
   render() {
     return (
-        <div>
-          <p>Game component works</p> 
-          <p>{this.props.player.name}</p>
+        <div className={'gameComponent'}>
+          <div className={'gameNameContainer'}>
+            <div className={'gameFirstName'}>
+              {this.props.player.name}
+            </div>
+            <div className={'gameSecondName'}>
+              AI
+            </div>
+          </div>
+          <div className={'gameSpace'}>
+            Game space
+          </div>
+          <div className={'gameLeaveButtonContainer'}>
+            <BS.Button variant="danger">
+                  Leave game
+            </BS.Button>
+          </div>
         </div>
     );
   }
