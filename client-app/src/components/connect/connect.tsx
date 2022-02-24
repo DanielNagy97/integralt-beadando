@@ -14,8 +14,8 @@ export interface ConnectProps {
 export interface ConnectStates { 
   messageHandler: PlayerSocketMessageHandler,
   player: Player,
-  validated: boolean,
-  playerName: String,
+  isFormValidated: boolean,
+  isNameInvalid: boolean,
   opponentButtons: {
     vs: string,
     ai: string
@@ -32,8 +32,8 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
         id: "",
         name: ""
       },
-      validated: false,
-      playerName: '',
+      isFormValidated: false,
+      isNameInvalid: false,
       opponentButtons: {
         ai: "outline-secondary",
         vs: "secondary"
@@ -68,32 +68,33 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
   }
 
   connect() {
-    var playerName = this.state.playerName
-    this.setState({
-      player: {
-        ...this.state.player,
-        name: playerName
-      }
-    });
-    //this.state.messageHandler.newPlayer(playerName);
+    this.state.messageHandler.newPlayer(this.state.player.name);
 
     this.props.onPlayerConnect(this.state.player)
     this.props.onPageChange('game')
   }
 
-  validateName = (event: any) => {
-    this.state.messageHandler.newPlayer("Sanyi");
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    } else {
+  validateForm = () => {
+    if (this.state.player.name !== '') {
       this.setState({
-        validated: true
+        isFormValidated: true
       })
 
       this.connect()
+    } else {
+      this.setState({
+        isNameInvalid: true
+      })
     }
+  }
+
+  onNameChange = (name: any) => {
+     this.setState({
+       player: {
+         ...this.state.player,
+         name: name
+       }
+     })
   }
 
   listPlayers() {
@@ -132,9 +133,6 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
   }
 
   render() {
-    console.log(this.state);
-
-    
     return (
       <div className={'connectComponent'}>
         {/*
@@ -153,16 +151,21 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
           </BS.ButtonGroup>
           </div>
           <div className={'connectForm'}>
-            <BS.Form noValidate validated={this.state.validated} onSubmit={this.validateName}>
-              <BS.Form.Group className="mb-3" controlId="formBasicEmail">
+            <BS.Form validated={this.state.isFormValidated}>
+              <BS.Form.Group className="mb-3" controlId="formName">
                 <BS.Form.Label>Name</BS.Form.Label>
-                <BS.Form.Control required type="email" placeholder="Enter your name" />
+                <BS.Form.Control 
+                  type="text"
+                  placeholder="Enter your name"
+                  onChange={e => this.onNameChange(e.target.value)}
+                  isInvalid={this.state.isNameInvalid}
+                />
                 <BS.Form.Control.Feedback type="invalid">
                   Please choose a name.
                 </BS.Form.Control.Feedback>
               </BS.Form.Group>
               <div style={{textAlign: 'center'}}>
-                <BS.Button variant="primary" type="submit">
+                <BS.Button variant="primary" onClick={() => this.validateForm()}>
                   Connect with name
                 </BS.Button>
               </div>
