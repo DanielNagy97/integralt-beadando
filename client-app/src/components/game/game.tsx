@@ -1,6 +1,7 @@
 import React from 'react';
 import * as BS from 'react-bootstrap';
 import { Player } from '../../models/player';
+import { Pages } from '../../enums/pages';
 
 export interface GameProps{
   onPageChange: Function;
@@ -12,6 +13,11 @@ export interface GameStates{}
 class Game extends React.Component<GameProps, GameStates> {
   constructor(props: GameProps){
     super(props)
+  }
+
+  //TODO connecting the leaving action, sending message to the server
+  leaveGame() {
+    this.props.onPageChange(Pages.CONNECT);
   }
 
   render() {
@@ -29,7 +35,7 @@ class Game extends React.Component<GameProps, GameStates> {
             Game space
           </div>
           <div className={'gameLeaveButtonContainer'}>
-            <BS.Button variant="danger">
+            <BS.Button variant="danger" onClick={() => this.leaveGame()}>
                   Leave game
             </BS.Button>
           </div>
