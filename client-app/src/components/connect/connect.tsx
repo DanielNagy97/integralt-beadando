@@ -165,7 +165,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
                 </BS.Form.Control.Feedback>
               </BS.Form.Group>
               <div style={{textAlign: 'center'}}>
-                <BS.Button variant="primary" onClick={() => this.validateForm()}>
+                <BS.Button variant="secondary" size='lg' onClick={() => this.validateForm()}>
                   Connect with name
                 </BS.Button>
               </div>
