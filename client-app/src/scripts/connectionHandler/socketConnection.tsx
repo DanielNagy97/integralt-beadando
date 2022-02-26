@@ -1,5 +1,5 @@
 import { SocketConnectionInt } from "./interfaces/socketConnectionInt";
-import { SocketMessage } from "./messages/socketMessage";
+import { SocketMessage } from "./models/socketMessage";
 
 
 export class PlayerSocketConnection implements SocketConnectionInt {

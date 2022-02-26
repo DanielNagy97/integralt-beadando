@@ -1,4 +1,4 @@
-import { SocketMessage } from "../messages/socketMessage";
+import { SocketMessage } from "../models/socketMessage";
 
 export interface SocketConnectionInt {
   socket: WebSocket,

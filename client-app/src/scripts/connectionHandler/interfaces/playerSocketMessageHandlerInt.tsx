@@ -1,5 +1,5 @@
-import { PlayerListPayload } from "../messages/responses";
-import { NewPlayerPayload } from "../messages/responses";
+import { PlayerListPayload } from "../models/responses";
+import { NewPlayerPayload } from "../models/responses";
 
 export interface PlayerSocketMessageHandlerInt {
   newPlayer(name: String): void,

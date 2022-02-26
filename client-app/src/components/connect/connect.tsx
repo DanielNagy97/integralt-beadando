@@ -1,8 +1,5 @@
 import React from 'react';
 import * as BS from 'react-bootstrap';
-import { RequestType } from '../../scripts/connectionHandler/messages/requestType';
-import { NewPlayerPayload, PlayerListPayload } from '../../scripts/connectionHandler/messages/responses';
-import { SocketMessage } from '../../scripts/connectionHandler/messages/socketMessage';
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
 import { Player } from '../../models/player';
 
@@ -36,32 +33,6 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
       opponentButtons: {
         ai: "outline-secondary",
         vs: "secondary"
-      }
-    }
-  }
-
-  componentDidMount() {
-    this.props.messageHandler.getSocket().onmessage = message => {
-      const response: SocketMessage = JSON.parse(message.data);
-
-      // Ez azért van itt, hogy ne kintről legyen módosítva a state,
-      // ha meg lehet szépen oldani, majd bekerülne PlayerSocketMessageHandler-be!
-      if (response.type === RequestType.newPlayer) {
-        
-        const payload: NewPlayerPayload = response.payload;
-        /*
-        this.setState({
-          player: {
-            ...this.state.player,
-            id: payload.id
-          }
-        });
-        */
-        console.log(payload);
-      }
-      else if (response.type === RequestType.playerList) {
-        const payload: PlayerListPayload = response.payload;
-        console.log(payload);
       }
     }
   }
