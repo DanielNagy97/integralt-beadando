@@ -1,6 +1,6 @@
 import { PlayerSocketConnection } from "./socketConnection";
 import { MessageSender } from "./messageSender";
-import { MessageReceiver } from "./messageReceiver";
+import { MessageReceiver, stateChangers } from "./messageReceiver";
 
 
 export class PlayerSocketMessageHandler {
@@ -8,10 +8,10 @@ export class PlayerSocketMessageHandler {
   sender: MessageSender;
   receiver: MessageReceiver;
 
-  constructor(setPlayerId: Function) {
+  constructor(stateChangers: stateChangers) {
     this.socketConnection = PlayerSocketConnection.getInstance();
     this.sender = new MessageSender();
-    this.receiver = new MessageReceiver(setPlayerId);
+    this.receiver = new MessageReceiver(stateChangers);
 
     this.socketConnection.socket.onopen = this.onOpen;
     this.socketConnection.socket.onclose = this.onClose;

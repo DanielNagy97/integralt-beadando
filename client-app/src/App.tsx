@@ -25,7 +25,11 @@ class App extends React.Component<AppProps, AppStates> {
         id: '',
         name: ''
       },
-      messageHandler: new PlayerSocketMessageHandler(this.setPlayerId)
+      messageHandler: new PlayerSocketMessageHandler(
+        {
+          setPlayerId: this.setPlayerId
+        }
+      )
     }
   }
 
