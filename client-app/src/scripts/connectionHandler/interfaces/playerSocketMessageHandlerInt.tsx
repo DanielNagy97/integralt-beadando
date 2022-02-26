@@ -6,6 +6,9 @@ export interface PlayerSocketMessageHandlerInt {
   playerList(id: String): void,
   leaving(id: String): void,
 
+  onOpen(): void,
+  onClose(): void,
+  //onMessage(message: MessageEvent<any>): void,
   onNewPlayer(payload: NewPlayerPayload): void,
   onPlayerList(payload: PlayerListPayload): void
 }

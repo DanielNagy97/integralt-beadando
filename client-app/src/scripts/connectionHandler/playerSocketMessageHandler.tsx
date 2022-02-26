@@ -3,7 +3,6 @@ import { leavingRequest, newPlayerRequest, playerListRequest } from "./models/re
 import { RequestType } from "./models/requestType";
 import { PlayerSocketConnection } from "./socketConnection";
 import { NewPlayerPayload, PlayerListPayload } from "./models/responses";
-import { SocketMessage } from "./models/socketMessage";
 
 
 export class PlayerSocketMessageHandler implements PlayerSocketMessageHandlerInt {
@@ -13,7 +12,7 @@ export class PlayerSocketMessageHandler implements PlayerSocketMessageHandlerInt
     this.socketConnection = PlayerSocketConnection.getInstance();
     this.socketConnection.socket.onopen = this.onOpen;
     this.socketConnection.socket.onclose = this.onClose;
-    this.socketConnection.socket.onmessage = this.onMessage;
+    //this.socketConnection.socket.onmessage = this.onMessage;
   }
 
   onOpen() {
@@ -24,32 +23,6 @@ export class PlayerSocketMessageHandler implements PlayerSocketMessageHandlerInt
   onClose() {
     // TODO: Pass the result to the component!
     console.log("Disconected from server!");
-  }
-
-  onMessage(message: MessageEvent<any>) {
-    const response: SocketMessage = JSON.parse(message.data);
-
-    if (response.type === RequestType.newPlayer) {
-      
-      const payload: NewPlayerPayload = response.payload;
-      /*
-      this.setState({
-        player: {
-          ...this.state.player,
-          id: payload.id
-        }
-      });
-      */
-      console.log(payload);
-    }
-    else if (response.type === RequestType.playerList) {
-      const payload: PlayerListPayload = response.payload;
-      console.log(payload);
-    }
-  }
-
-  getSocket(): WebSocket {
-    return this.socketConnection.socket;
   }
 
   newPlayer(name: String): void {

@@ -18,12 +18,14 @@ class Game extends React.Component<GameProps, GameStates> {
   }
 
   //TODO connecting the leaving action, sending message to the server
+  // SOLUTION: Handler moved to the App, and can be accessed by prop
   leaveGame() {
-    this.props.messageHandler.leaving("0");
+    this.props.messageHandler.leaving(this.props.player.id);
     this.props.onPageChange(Pages.CONNECT);
   }
 
   render() {
+    console.log(this.props.player)
     return (
         <div className={'gameComponent'}>
           <div className={'gameNameContainer'}>
