@@ -38,7 +38,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
   }
 
   connect() {
-    this.props.messageHandler.newPlayer(this.state.player.name);
+    this.props.messageHandler.sender.sendNewPlayerRequest(this.state.player.name);
 
     this.props.onPlayerConnect(this.state.player)
     this.props.onPageChange('game')
@@ -69,7 +69,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
 
   // NOTE: Unused function
   listPlayers() {
-    this.props.messageHandler.playerList("1");
+    this.props.messageHandler.sender.sendPlayerListRequest("1");
   }
 
   //TODO make it easier and prettier

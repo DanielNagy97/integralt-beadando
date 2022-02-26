@@ -1,8 +1,7 @@
-import { SocketConnectionInt } from "./interfaces/socketConnectionInt";
 import { SocketMessage } from "./models/socketMessage";
 
 
-export class PlayerSocketConnection implements SocketConnectionInt {
+export class PlayerSocketConnection {
   private static instance: PlayerSocketConnection;
   socket: WebSocket;
 
