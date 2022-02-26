@@ -2,10 +2,12 @@ import React from 'react';
 import * as BS from 'react-bootstrap';
 import { Player } from '../../models/player';
 import { Pages } from '../../enums/pages';
+import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
 
 export interface GameProps{
   onPageChange: Function;
   player: Player;
+  messageHandler: PlayerSocketMessageHandler;
 }
 
 export interface GameStates{}
@@ -17,6 +19,7 @@ class Game extends React.Component<GameProps, GameStates> {
 
   //TODO connecting the leaving action, sending message to the server
   leaveGame() {
+    this.props.messageHandler.leaving("0");
     this.props.onPageChange(Pages.CONNECT);
   }
 

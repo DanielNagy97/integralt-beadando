@@ -9,10 +9,10 @@ import { Player } from '../../models/player';
 export interface ConnectProps {
   onPageChange: Function;
   onPlayerConnect: Function;
+  messageHandler: PlayerSocketMessageHandler;
 }
 
-export interface ConnectStates { 
-  messageHandler: PlayerSocketMessageHandler,
+export interface ConnectStates {
   player: Player,
   isFormValidated: boolean,
   isNameInvalid: boolean,
@@ -27,7 +27,6 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
     super(props)
     
     this.state = {
-      messageHandler: new PlayerSocketMessageHandler(),
       player: {
         id: "",
         name: ""
@@ -42,7 +41,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
   }
 
   componentDidMount() {
-    this.state.messageHandler.getSocket().onmessage = message => {
+    this.props.messageHandler.getSocket().onmessage = message => {
       const response: SocketMessage = JSON.parse(message.data);
 
       // Ez azért van itt, hogy ne kintről legyen módosítva a state,
@@ -68,7 +67,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
   }
 
   connect() {
-    this.state.messageHandler.newPlayer(this.state.player.name);
+    this.props.messageHandler.newPlayer(this.state.player.name);
 
     this.props.onPlayerConnect(this.state.player)
     this.props.onPageChange('game')
@@ -98,11 +97,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
   }
 
   listPlayers() {
-    this.state.messageHandler.playerList("1");
-  }
-
-  leave() {
-    this.state.messageHandler.leaving("1");
+    this.props.messageHandler.playerList("1");
   }
 
   //TODO make it easier and prettier
