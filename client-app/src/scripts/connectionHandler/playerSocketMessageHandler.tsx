@@ -3,16 +3,29 @@ import { leavingRequest, newPlayerRequest, playerListRequest } from "./models/re
 import { RequestType } from "./models/requestType";
 import { PlayerSocketConnection } from "./socketConnection";
 import { NewPlayerPayload, PlayerListPayload } from "./models/responses";
+import { SocketMessage } from "./models/socketMessage";
 
 
 export class PlayerSocketMessageHandler implements PlayerSocketMessageHandlerInt {
   socketConnection: PlayerSocketConnection;
 
-  constructor() {
+  constructor(setPlayerId: Function) {
     this.socketConnection = PlayerSocketConnection.getInstance();
+
     this.socketConnection.socket.onopen = this.onOpen;
     this.socketConnection.socket.onclose = this.onClose;
-    //this.socketConnection.socket.onmessage = this.onMessage;
+    this.socketConnection.socket.onmessage = message => {
+      const response: SocketMessage = JSON.parse(message.data);
+
+      if (response.type === RequestType.newPlayer) {
+        const payload: NewPlayerPayload = response.payload;
+        setPlayerId(payload.id); // Modifying the App's state
+      }
+      else if (response.type === RequestType.playerList) {
+        const payload: PlayerListPayload = response.payload;
+        console.log(payload);
+      }
+    }
   }
 
   onOpen() {

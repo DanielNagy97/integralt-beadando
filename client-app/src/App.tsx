@@ -5,9 +5,6 @@ import Game from './components/game/game';
 import { Player } from '../src/models/player';
 import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
-import { SocketMessage } from './scripts/connectionHandler/models/socketMessage';
-import { NewPlayerPayload, PlayerListPayload } from './scripts/connectionHandler/models/responses';
-import { RequestType } from './scripts/connectionHandler/models/requestType';
 
 export interface AppProps {}
 
@@ -28,25 +25,9 @@ class App extends React.Component<AppProps, AppStates> {
         id: '',
         name: ''
       },
-      messageHandler: new PlayerSocketMessageHandler()
-    }
-
-    // TODO: Find a way to modify the state of the player from outside of the component!
-    // This onmessage code should not be here!
-    this.state.messageHandler.socketConnection.socket.onmessage = message => {
-      const response: SocketMessage = JSON.parse(message.data);
-  
-      if (response.type === RequestType.newPlayer) {
-        const payload: NewPlayerPayload = response.payload;
-        this.setPlayer({...this.state.player, id: payload.id})
-      }
-      else if (response.type === RequestType.playerList) {
-        const payload: PlayerListPayload = response.payload;
-        console.log(payload);
-      }
+      messageHandler: new PlayerSocketMessageHandler(this.setPlayerId)
     }
   }
-
 
   setPage = (page: Pages) => {
     this.setState({
@@ -58,6 +39,15 @@ class App extends React.Component<AppProps, AppStates> {
       this.setState({
         player: player
       })
+  }
+
+  setPlayerId = (id: String) => {
+    this.setState({
+      player: {
+        ...this.state.player,
+        id: id
+      }
+    });
   }
 
   render() {

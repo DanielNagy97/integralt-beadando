@@ -67,6 +67,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
      })
   }
 
+  // NOTE: Unused function
   listPlayers() {
     this.props.messageHandler.playerList("1");
   }
