@@ -17,8 +17,6 @@ class Game extends React.Component<GameProps, GameStates> {
     super(props)
   }
 
-  //TODO connecting the leaving action, sending message to the server
-  // SOLUTION: Handler moved to the App, and can be accessed by prop
   leaveGame() {
     this.props.messageHandler.sender.leaving(this.props.player.id);
     this.props.onPageChange(Pages.CONNECT);
