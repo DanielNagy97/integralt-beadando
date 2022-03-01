@@ -1,21 +1,18 @@
 import React from 'react';
 import * as BS from 'react-bootstrap';
-import { RequestType } from '../../scripts/connectionHandler/messages/requestType';
-import { NewPlayerPayload, PlayerListPayload } from '../../scripts/connectionHandler/messages/responses';
-import { SocketMessage } from '../../scripts/connectionHandler/messages/socketMessage';
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
 import { Player } from '../../models/player';
 
 export interface ConnectProps {
   onPageChange: Function;
   onPlayerConnect: Function;
+  messageHandler: PlayerSocketMessageHandler;
 }
 
-export interface ConnectStates { 
-  messageHandler: PlayerSocketMessageHandler,
+export interface ConnectStates {
   player: Player,
-  validated: boolean,
-  playerName: String,
+  isFormValidated: boolean,
+  isNameInvalid: boolean,
   opponentButtons: {
     vs: string,
     ai: string
@@ -27,13 +24,12 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
     super(props)
     
     this.state = {
-      messageHandler: new PlayerSocketMessageHandler(),
       player: {
         id: "",
         name: ""
       },
-      validated: false,
-      playerName: '',
+      isFormValidated: false,
+      isNameInvalid: false,
       opponentButtons: {
         ai: "outline-secondary",
         vs: "secondary"
@@ -41,67 +37,39 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
     }
   }
 
-  componentDidMount() {
-    this.state.messageHandler.getSocket().onmessage = message => {
-      const response: SocketMessage = JSON.parse(message.data);
-
-      // Ez azért van itt, hogy ne kintről legyen módosítva a state,
-      // ha meg lehet szépen oldani, majd bekerülne PlayerSocketMessageHandler-be!
-      if (response.type === RequestType.newPlayer) {
-        
-        const payload: NewPlayerPayload = response.payload;
-        /*
-        this.setState({
-          player: {
-            ...this.state.player,
-            id: payload.id
-          }
-        });
-        */
-        console.log(payload);
-      }
-      else if (response.type === RequestType.playerList) {
-        const payload: PlayerListPayload = response.payload;
-        console.log(payload);
-      }
-    }
-  }
-
   connect() {
-    var playerName = this.state.playerName
-    this.setState({
-      player: {
-        ...this.state.player,
-        name: playerName
-      }
-    });
-    //this.state.messageHandler.newPlayer(playerName);
+    this.props.messageHandler.sender.sendNewPlayerRequest(this.state.player.name);
 
     this.props.onPlayerConnect(this.state.player)
     this.props.onPageChange('game')
   }
 
-  validateName = (event: any) => {
-    this.state.messageHandler.newPlayer("Sanyi");
-    const form = event.currentTarget;
-    if (form.checkValidity() === false) {
-      event.preventDefault();
-      event.stopPropagation();
-    } else {
+  validateForm = () => {
+    if (this.state.player.name !== '') {
       this.setState({
-        validated: true
+        isFormValidated: true
       })
 
       this.connect()
+    } else {
+      this.setState({
+        isNameInvalid: true
+      })
     }
   }
 
-  listPlayers() {
-    this.state.messageHandler.playerList("1");
+  onNameChange = (name: any) => {
+     this.setState({
+       player: {
+         ...this.state.player,
+         name: name
+       }
+     })
   }
 
-  leave() {
-    this.state.messageHandler.leaving("1");
+  // NOTE: Unused function
+  listPlayers() {
+    this.props.messageHandler.sender.sendPlayerListRequest("1");
   }
 
   //TODO make it easier and prettier
@@ -132,9 +100,6 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
   }
 
   render() {
-    console.log(this.state);
-
-    
     return (
       <div className={'connectComponent'}>
         {/*
@@ -153,16 +118,21 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
           </BS.ButtonGroup>
           </div>
           <div className={'connectForm'}>
-            <BS.Form noValidate validated={this.state.validated} onSubmit={this.validateName}>
-              <BS.Form.Group className="mb-3" controlId="formBasicEmail">
+            <BS.Form validated={this.state.isFormValidated}>
+              <BS.Form.Group className="mb-3" controlId="formName">
                 <BS.Form.Label>Name</BS.Form.Label>
-                <BS.Form.Control required type="email" placeholder="Enter your name" />
+                <BS.Form.Control 
+                  type="text"
+                  placeholder="Enter your name"
+                  onChange={e => this.onNameChange(e.target.value)}
+                  isInvalid={this.state.isNameInvalid}
+                />
                 <BS.Form.Control.Feedback type="invalid">
                   Please choose a name.
                 </BS.Form.Control.Feedback>
               </BS.Form.Group>
               <div style={{textAlign: 'center'}}>
-                <BS.Button variant="primary" type="submit">
+                <BS.Button variant="secondary" size='lg' onClick={() => this.validateForm()}>
                   Connect with name
                 </BS.Button>
               </div>

@@ -1,69 +1,29 @@
-import { PlayerSocketMessageHandlerInt } from "./interfaces/playerSocketMessageHandlerInt";
-import { leavingRequest, newPlayerRequest, playerListRequest } from "./messages/requests";
-import { RequestType } from "./messages/requestType";
 import { PlayerSocketConnection } from "./socketConnection";
-import { NewPlayerPayload, PlayerListPayload } from "./messages/responses";
+import { MessageSender } from "./messageSender";
+import { MessageReceiver, stateChangers } from "./messageReceiver";
 
 
-export class PlayerSocketMessageHandler implements PlayerSocketMessageHandlerInt {
-
+export class PlayerSocketMessageHandler {
   socketConnection: PlayerSocketConnection;
+  sender: MessageSender;
+  receiver: MessageReceiver;
 
-  constructor() {
+  constructor(stateChangers: stateChangers) {
     this.socketConnection = PlayerSocketConnection.getInstance();
+    this.sender = new MessageSender();
+    this.receiver = new MessageReceiver(stateChangers);
 
-    this.socketConnection.socket.onopen = () => {
-      // TODO: Pass the result to the component!
-      console.log("Connected to server!");
-    };
-
-    this.socketConnection.socket.onclose = () => {
-      // TODO: Pass the result to the component!
-      console.log("Disconected from server!");
-    };
+    this.socketConnection.socket.onopen = this.onOpen;
+    this.socketConnection.socket.onclose = this.onClose;
   }
 
-  getSocket(): WebSocket {
-    return this.socketConnection.socket;
-  }
-
-  newPlayer(name: String): void {
-    const message: newPlayerRequest = {
-      type: RequestType.newPlayer,
-      payload: {
-        name: name
-      }
-    };
-    this.socketConnection.send(message);
-  }
-
-  playerList(id: String): void {
-    const message: playerListRequest = {
-      type: RequestType.playerList,
-      payload: {
-        id: id
-      }
-    };
-    this.socketConnection.send(message);
-  }
-
-  leaving(id: String): void {
-    const message: leavingRequest = {
-      type: RequestType.leaving,
-      payload: {
-        id: id
-      }
-    };
-    this.socketConnection.send(message);
-  }
-
-  onNewPlayer(payload: NewPlayerPayload): void {
+  onOpen() {
     // TODO: Pass the result to the component!
-    console.log("new player added with id:" + payload.id);
+    console.log("Connected to server!");
   }
 
-  onPlayerList(payload: PlayerListPayload): void {
+  onClose() {
     // TODO: Pass the result to the component!
-    console.log("list of players:" + payload.list);
+    console.log("Disconected from server!");
   }
 }

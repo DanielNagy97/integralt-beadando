@@ -3,17 +3,15 @@ import './App.css';
 import Connect from './components/connect/connect';
 import Game from './components/game/game';
 import { Player } from '../src/models/player';
-
-export enum Pages {
-  CONNECT = 'connect',
-  GAME = 'game'
-}
+import { Pages } from '../src/enums/pages';
+import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
 
 export interface AppProps {}
 
 export interface AppStates {
   page: Pages;
   player: Player;
+  messageHandler: PlayerSocketMessageHandler;
 }
 
 class App extends React.Component<AppProps, AppStates> {
@@ -26,7 +24,12 @@ class App extends React.Component<AppProps, AppStates> {
       player: {
         id: '',
         name: ''
-      }
+      },
+      messageHandler: new PlayerSocketMessageHandler(
+        {
+          setPlayerId: this.setPlayerId
+        }
+      )
     }
   }
 
@@ -42,6 +45,15 @@ class App extends React.Component<AppProps, AppStates> {
       })
   }
 
+  setPlayerId = (id: String) => {
+    this.setState({
+      player: {
+        ...this.state.player,
+        id: id
+      }
+    });
+  }
+
   render() {
     return (
       <div>
@@ -50,13 +62,15 @@ class App extends React.Component<AppProps, AppStates> {
           <Connect 
             onPageChange = {this.setPage}
             onPlayerConnect = {this.setPlayer}
+            messageHandler =  {this.state.messageHandler}
           />
         }
         {
-          this.state.page === 'game' &&
+          this.state.page === 'game' && this.state.player.id !== '' &&
           <Game 
             onPageChange = {this.setPage}
             player = {this.state.player}
+            messageHandler =  {this.state.messageHandler}
           />
         }
       </div>
