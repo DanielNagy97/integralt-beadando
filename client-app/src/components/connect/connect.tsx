@@ -1,7 +1,9 @@
 import React from 'react';
 import * as BS from 'react-bootstrap';
+import './connect.css'
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
 import { Player } from '../../models/player';
+import { GameTypes } from '../../enums/game-types';
 
 export interface ConnectProps {
   onPageChange: Function;
@@ -14,9 +16,12 @@ export interface ConnectStates {
   isFormValidated: boolean,
   isNameInvalid: boolean,
   opponentButtons: {
-    vs: string,
-    ai: string
-  }
+    [GameTypes.AI_VS_AI]: string,
+    [GameTypes.PLAYER_VS_AI]: string,
+    [GameTypes.PLAYER_VS_PLAYER]: string
+  },
+  showGameList: boolean,
+  testGameRoom: String[]
 }
 
 class Connect extends React.Component<ConnectProps, ConnectStates> {
@@ -31,9 +36,12 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
       isFormValidated: false,
       isNameInvalid: false,
       opponentButtons: {
-        ai: "outline-secondary",
-        vs: "secondary"
-      }
+        [GameTypes.AI_VS_AI]: "secondary",
+        [GameTypes.PLAYER_VS_AI]: "outline-secondary",
+        [GameTypes.PLAYER_VS_PLAYER]: "outline-secondary"
+      },
+      showGameList: false,
+      testGameRoom: ["Room one", "Room two", "Room three"]
     }
   }
 
@@ -72,51 +80,75 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
     this.props.messageHandler.sender.sendPlayerListRequest("1");
   }
 
-  //TODO make it easier and prettier
-  opponentChange(type: String) {
-    switch (type) {
-      case 'ai':
-        if (this.state.opponentButtons.ai != 'secondary') {
-          this.setState({
-            opponentButtons: {
-              ai: "secondary",
-              vs: "outline-secondary"
-            }
-          })
+  opponentChange(type: GameTypes) {
+    if (this.state.opponentButtons[type] !== "secondary") {
+      this.setState({
+        opponentButtons: {
+          [GameTypes.AI_VS_AI]: type === GameTypes.AI_VS_AI ? "secondary" : "outline-secondary",
+          [GameTypes.PLAYER_VS_AI]: type === GameTypes.PLAYER_VS_AI ? "secondary" : "outline-secondary",
+          [GameTypes.PLAYER_VS_PLAYER]: type === GameTypes.PLAYER_VS_PLAYER ? "secondary" : "outline-secondary"
         }
-        break;
-    
-      case 'vs':
-        if (this.state.opponentButtons.vs != 'secondary') {
-          this.setState({
-            opponentButtons: {
-              ai: "outline-secondary",
-              vs: "secondary"
-            }
-          })
-        } 
-        break;
+      })
     }
+
+    this.setState({
+      showGameList: type === GameTypes.PLAYER_VS_PLAYER ? true : false
+    })
   }
 
   render() {
     return (
       <div className={'connectComponent'}>
-        {/*
-        <button onClick={() => this.listPlayers()}>Player List</button>
-        <button onClick={() => this.leave()}>Leave</button>
-        */}
         <div className={'connectBackground'}>
           <div className={'connectTitle'}>
             <h1>Button football</h1>
           </div>
           <div style={{textAlign: 'center'}}>
             <h3>Choose opponent</h3>
-          <BS.ButtonGroup className={'opponentButtons'}>
-            <BS.Button variant={this.state.opponentButtons.vs} onClick={() => this.opponentChange("vs")}>VS</BS.Button>
-            <BS.Button variant={this.state.opponentButtons.ai} onClick={() => this.opponentChange("ai")}>AI</BS.Button>
+          <BS.ButtonGroup className={'opponentButtonContainer'}>
+            <BS.Button 
+              variant={this.state.opponentButtons[GameTypes.AI_VS_AI]}
+              onClick={() => this.opponentChange(GameTypes.AI_VS_AI)}
+              className={'opponentButton'}>
+                AI vs AI
+            </BS.Button>
+            <BS.Button 
+              variant={this.state.opponentButtons[GameTypes.PLAYER_VS_AI]}
+              onClick={() => this.opponentChange(GameTypes.PLAYER_VS_AI)}
+              className={'opponentButton'}>
+                Player vs AI
+            </BS.Button>
+            <BS.Button
+              variant={this.state.opponentButtons[GameTypes.PLAYER_VS_PLAYER]}
+              onClick={() => this.opponentChange(GameTypes.PLAYER_VS_PLAYER)}
+              className={'opponentButton'}>
+                Player vs Player
+            </BS.Button>
           </BS.ButtonGroup>
           </div>
+          {
+            this.state.showGameList &&
+            <div className={'gameRoomListContainer'}>
+              { this.state.testGameRoom &&
+                <BS.Table striped bordered hover>
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Room name</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  { this.state.testGameRoom.map((room, index) =>
+                    <tr key={index}>
+                        <td>{index}</td>
+                        <td>{room}</td>
+                    </tr>
+                  )}
+                  </tbody>
+                </BS.Table>
+             }     
+            </div>
+          }
           <div className={'connectForm'}>
             <BS.Form validated={this.state.isFormValidated}>
               <BS.Form.Group className="mb-3" controlId="formName">
