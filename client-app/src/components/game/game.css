@@ -29,7 +29,7 @@
 
 .gameSpace {
     background-color: white;
-    height: 500px;
+    height: 540px;
     text-align: center;
     border-radius: 0px 0px 30px 30px;
     border: 1px solid black;
@@ -38,4 +38,10 @@
 .gameLeaveButtonContainer {
     float: right;
     padding: 10px;
+}
+
+canvas {
+    display: block;
+    margin: auto;
+    background-image: url('../../../public/soccer_field.png');
 }
