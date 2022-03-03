@@ -1,0 +1,42 @@
+.connectForm {
+  width: 50%;
+  margin: auto;
+  padding: 20px;
+  font-size: 25px;
+}
+
+.connectTitle {
+  margin: auto;
+  text-align: center;
+  padding: 50px;
+}
+
+.connectComponent {
+  margin: auto;
+  padding: 10%;
+}
+
+.connectBackground {
+  margin: auto;
+  width: 75%;
+  background-color: var(--formBackground);
+  border-radius: 30px;
+  border: 2px solid var(--formBorder);
+  box-shadow: 3px 3px 3px 3px var(--formShadow);
+}
+
+.opponentButtonContainer {
+  width: 500px;
+  height: 100px;
+  padding: 10px;
+}
+
+.opponentButton {
+  width: 100%;
+}
+
+.gameRoomListContainer {
+  width: 80%;
+  margin: auto;
+  padding: 20px 20px 0px 20px;
+}
