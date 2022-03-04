@@ -5,6 +5,7 @@ const cors = require('cors');
 const newPlayerRequest = require("./requests/newPlayerRequest");
 const leavingRequest = require("./requests/leavingRequest");
 const playerListRequest = require("./requests/playerListRequest");
+const createRequest = require("./requests/createRequest");
 
 app.use(cors());
 app.listen(3000, () => console.log("Listening Express on port 3000"));
@@ -28,11 +29,15 @@ wsServer.on("request", request => {
         }
 
         if (response.type == "leaving") {
-            leavingRequest(response);
+            leavingRequest(connection, response);
         }
 
         if (response.type == "playerList") {
-            playerListRequest(response);
+            playerListRequest(connection, response);
+        }
+
+        if (response.type == "join") {
+            createRequest(connection, response);
         }
     });
 });
