@@ -1,5 +1,5 @@
 import { RequestType } from "./models/requestType";
-import { NewPlayerPayload, PlayerListPayload } from "./models/responses";
+import { JoinPayload, MovePayLoad, NewPlayerPayload, PlayerListPayload } from "./models/responses";
 import { SocketMessage } from "./models/socketMessage";
 import { PlayerSocketConnection } from "./socketConnection";
 
@@ -23,6 +23,14 @@ export class MessageReceiver {
       }
       else if (response.type === RequestType.playerList) {
         const payload: PlayerListPayload = response.payload;
+        console.log(payload);
+      }
+      else if (response.type === RequestType.join) {
+        const payload: JoinPayload = response.payload;
+        console.log(payload);
+      }
+      else if (response.type === RequestType.move) {
+        const payload: MovePayLoad = response.payload;
         console.log(payload);
       }
     }

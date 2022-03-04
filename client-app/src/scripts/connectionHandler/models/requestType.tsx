@@ -2,5 +2,7 @@
 export enum RequestType {
   newPlayer = "newPlayer",
   playerList = "playerList",
-  leaving = "leaving"
+  leaving = "leaving",
+  join = "join",
+  move = "move"
 }

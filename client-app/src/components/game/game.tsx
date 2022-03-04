@@ -50,7 +50,7 @@ class Game extends React.Component<GameProps, GameStates> {
   }
 
   leaveGame() {
-    this.props.messageHandler.sender.leaving(this.props.player.id);
+    this.props.messageHandler.sender.sendLeavingRequest(this.props.player.id);
     this.props.onPageChange(Pages.CONNECT);
   }
 
