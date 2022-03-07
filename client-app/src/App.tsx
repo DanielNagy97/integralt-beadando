@@ -5,6 +5,8 @@ import Game from './components/game/game';
 import { Player } from '../src/models/player';
 import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
+import { RequestType } from './scripts/connectionHandler/models/requestType';
+import { JoinPayload, MovePayLoad, NewPlayerPayload, PlayerListPayload } from './scripts/connectionHandler/models/responses';
 
 export interface AppProps {}
 
@@ -25,12 +27,26 @@ class App extends React.Component<AppProps, AppStates> {
         id: '',
         name: ''
       },
-      messageHandler: new PlayerSocketMessageHandler(
-        {
-          setPlayerId: this.setPlayerId
-        }
-      )
+      messageHandler: new PlayerSocketMessageHandler()
     }
+  }
+
+  componentDidMount(){
+    this.state.messageHandler.receiver.onMessages.set(RequestType.newPlayer,
+      (payload: NewPlayerPayload) => this.setPlayerId(payload.id)
+    );
+
+    this.state.messageHandler.receiver.onMessages.set(RequestType.playerList,
+      (payload: PlayerListPayload) => console.log(payload.list)
+    );
+
+    this.state.messageHandler.receiver.onMessages.set(RequestType.join,
+      (payload: JoinPayload) => console.log(payload)
+    );
+
+    this.state.messageHandler.receiver.onMessages.set(RequestType.move,
+      (payload: MovePayLoad) => console.log(payload)
+    );
   }
 
   setPage = (page: Pages) => {
@@ -76,7 +92,6 @@ class App extends React.Component<AppProps, AppStates> {
       </div>
     )
   }
-
 }
 
 export default App;
