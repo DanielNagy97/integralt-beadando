@@ -5,5 +5,6 @@ export enum MessageType {
   leaving = "leaving",
   create = "create",
   join = "join",
-  move = "move"
+  move = "move",
+  error = "error"
 }
