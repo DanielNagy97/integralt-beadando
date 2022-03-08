@@ -1,5 +1,6 @@
 import { GameTypes } from "../../enums/game-types";
-import { JoinRequest, LeavingRequest, MoveAction, MoveRequest, NewPlayerRequest, PlayerListRequest } from "./models/requests";
+import { MoveAction } from "./models/custom-types";
+import { JoinRequest, LeavingRequest, MoveRequest, NewPlayerRequest, PlayerListRequest } from "./models/requests/requests";
 import { RequestType } from "./models/requestType";
 import { PlayerSocketConnection } from "./socketConnection";
 

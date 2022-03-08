@@ -6,7 +6,7 @@ import { Player } from '../src/models/player';
 import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
 import { RequestType } from './scripts/connectionHandler/models/requestType';
-import { JoinPayload, MovePayLoad, NewPlayerPayload, PlayerListPayload } from './scripts/connectionHandler/models/responses';
+import { JoinPayload, MovePayLoad, NewPlayerPayload, PlayerListPayload } from './scripts/connectionHandler/models/responses/payloads';
 
 export interface AppProps {}
 

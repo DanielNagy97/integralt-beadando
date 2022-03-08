@@ -1,33 +1,7 @@
-import { GameTypes } from "../../../enums/game-types";
-import { RequestType } from "./requestType";
-import { SocketMessage } from "./socketMessage";
+import { RequestType } from "../requestType";
+import { SocketMessage } from "../socketMessage";
+import { JoinPayload, LeavingPayload, MovePayLoad, NewPlayerPayload, PlayerListPayload } from "./payloads";
 
-
-export interface NewPlayerPayload {
-  name: String
-}
-
-export interface PlayerListPayload {
-  id: String
-}
-
-export interface LeavingPayload {
-  id: String
-}
-
-export interface JoinPayload {
-  gameType: GameTypes
-}
-
-export interface MoveAction {
-  button: {color: String, id: String},
-  direction: Float32Array
-}
-
-export interface MovePayLoad {
-  playerId: String,
-  moveAction: MoveAction
-}
 
 export interface NewPlayerRequest extends SocketMessage {
   type: RequestType.newPlayer,
