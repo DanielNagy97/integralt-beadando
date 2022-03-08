@@ -1,8 +1,8 @@
-module.exports = function sendError(connection, errorString, errorDetails) {
+module.exports = function sendError(connection, errorId, errorDetails) {
     const payLoad = {
         "type": "error",
         "payload": {
-            "errorString": errorString,
+            "errorId": errorId,
             "errorDetails": errorDetails
         }
     };

@@ -6,6 +6,7 @@ const newPlayerRequest = require("./requests/newPlayerRequest");
 const leavingRequest = require("./requests/leavingRequest");
 const playerListRequest = require("./requests/playerListRequest");
 const createRequest = require("./requests/createRequest");
+const joinRequest = require("./requests/joinRequest");
 
 app.use(cors());
 app.listen(3000, () => console.log("Listening Express on port 3000"));
@@ -36,8 +37,12 @@ wsServer.on("request", request => {
             playerListRequest(connection, response);
         }
 
-        if (response.type == "join") {
+        if (response.type == "create") {
             createRequest(connection, response);
+        }
+
+        if (response.type == "join") {
+            joinRequest(connection, response);
         }
     });
 });

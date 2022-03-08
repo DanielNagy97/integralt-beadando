@@ -6,7 +6,7 @@ const normalSender = require("../methods/normalSender");
 module.exports = function createMatch(connection, response) {
     if (!players.has(response.payload.id)) {
         errorSender(connection,
-            "Not a player",
+            "2",
             { "id": response.payload.id });
         console.warn("No player with id " + response.payload.id + ". Match not created.");
         return;
@@ -16,82 +16,53 @@ module.exports = function createMatch(connection, response) {
     var currentMatch = matchesIterator.next();
 
     while (!currentMatch.done) {
-        if (matches[currentMatch.value].players.includes(response.payload.id)) {
+        if (matches.get(currentMatch.value).players.includes(response.payload.id)) {
             console.warn("Player " + response.payload.id + " tried creating match but already in match " + currentMatch.value + ".");
             errorSender(players.get(response.payload.id).connection,
-                "Player already in match",
+                "3",
                 { "matchId": currentMatch.value });
             return;
         }
+        currentMatch = matchesIterator.next();
     }
 
-    var newMatchButtons = [{ "color": "red", "id": 0, "pos": [0, 0] },
-    { "color": "red", "id": 1, "pos": [0, 100] },
-    { "color": "red", "id": 2, "pos": [0, 200] },
-    { "color": "red", "id": 3, "pos": [0, 300] },
-    { "color": "blue", "id": 0, "pos": [600, 0] },
-    { "color": "blue", "id": 1, "pos": [600, 100] },
-    { "color": "blue", "id": 2, "pos": [600, 200] },
-    { "color": "blue", "id": 3, "pos": [600, 300] },
-        { "color": "ball", "id": 0, "pos": [300, 150] }];
-    
+    var newMatchButtons = [
+        { color: "red", id: "0", pos: [70, 250] },
+        { color: "red", id: "1", pos: [250, 160] },
+        { color: "red", id: "2", pos: [250, 340] },
+        { color: "red", id: "3", pos: [430, 70] },
+        { color: "red", id: "4", pos: [430, 250] },
+        { color: "red", id: "5", pos: [430, 430] },
+        { color: "blue", id: "0", pos: [930, 250] },
+        { color: "blue", id: "1", pos: [750, 160] },
+        { color: "blue", id: "2", pos: [750, 340] },
+        { color: "blue", id: "3", pos: [570, 70] },
+        { color: "blue", id: "4", pos: [570, 250] },
+        { color: "blue", id: "5", pos: [570, 430] },
+        { color: "white", id: "-1", pos: [500, 250] }
+    ];
+
     const matchId = matchIdCreate();
 
-    if (response.payload.gameType == "player-vs-ai") {
-        matches.set(matchId, {
-            "players": [response.payload.id],
-            "buttons": newMatchButtons,
-            "points": [0, 0],
-            "matchType": response.payload.gameType,
-            "nextMove": 0,
-            "spectators" : []
-        });
-        console.log("Player " + response.payload.id + " created " + response.payload.gameType + " match " + matchId);
-        normalSender(players.get(response.payload.id).connection,
-            "join",
-            {
-            "buttons": matches.get(matchId).buttons,
-            "nextMove": matches.get(matchId).nextMove
-        });
-    }
-    else if (response.payload.gameType == "ai-vs-ai") {
+    if (["player-vs-ai", "ai-vs-ai", "player-vs-player"].includes(response.payload.gameType)) {
         matches.set(matchId, {
             "players": [],
             "buttons": newMatchButtons,
             "points": [0, 0],
             "matchType": response.payload.gameType,
-            "nextMove": 0,
-            "spectators" : [response.payload.id]
+            "nextMove": 0
         });
         console.log("Player " + response.payload.id + " created " + response.payload.gameType + " match " + matchId);
         normalSender(players.get(response.payload.id).connection,
-            "join",
+            "create",
             {
-                "buttons": matches.get(matchId).buttons,
-                "nextMove": matches.get(matchId).nextMove
-            });
-    }
-    else if (response.payload.gameType == "player-vs-player") {
-        matches.set(matchId, {
-            "players": [response.payload.id],
-            "buttons": newMatchButtons,
-            "points": [0, 0],
-            "matchType": response.payload.gameType,
-            "nextMove": -1,
-            "spectators" : []
-        });
-        console.log("Player " + response.payload.id + " created " + response.payload.gameType + " match " + matchId);
-        normalSender(players.get(response.payload.id).connection,
-            "join",
-            {
-                "buttons": matches.get(matchId).buttons,
-                "nextMove": matches.get(matchId).nextMove
+                "gameId": matchId
             });
     }
     else {
         console.warn("Player " + response.payload.id + " sent wrong game type.");
         errorSender(players.get(response.payload.id).connection,
-            "Wrong gamme type.",
+            "5",
             { "gameType": response.payload.gameType });
     }
 

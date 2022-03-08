@@ -8,7 +8,7 @@ module.exports = function removePlayer(connection, response) {
         console.log("Removed player " + response.payload.id + " named " + removedPlayerName);
     }
     else {
-        errorSender(connection, "Not a player", {"id" : response.payload.id})
+        errorSender(connection, "2", {"id" : response.payload.id})
         console.warn("No player with id " + response.payload.id + ".");
     }
 }

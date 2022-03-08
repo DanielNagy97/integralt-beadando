@@ -9,8 +9,8 @@ module.exports = function playerList(connection, response) {
         console.log("Sent player list to player " + response.payload.id + " named " + players.get(response.payload.id).name + ".");
     }
     else {
-        errorSender(connection, "Not a player", {"id" : response.payload.id})
-        console.warn("No player with id " + response.payload.id + ". Nothing sent.");
+        errorSender(connection, "2", {"id" : response.payload.id})
+        console.warn("No player with id " + response.payload.id + ".");
     }
 
 }
