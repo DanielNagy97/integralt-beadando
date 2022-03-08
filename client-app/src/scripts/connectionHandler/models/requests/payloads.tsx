@@ -2,23 +2,23 @@ import { GameTypes } from "../../../../enums/game-types";
 import { MoveAction } from "../custom-types";
 
 
-export interface NewPlayerPayload {
+export interface NewPlayerRequestPayload {
   name: String
 }
 
-export interface PlayerListPayload {
+export interface PlayerListRequestPayload {
   id: String
 }
 
-export interface LeavingPayload {
+export interface LeavingRequestPayload {
   id: String
 }
 
-export interface JoinPayload {
+export interface JoinRequestPayload {
   gameType: GameTypes
 }
 
-export interface MovePayLoad {
+export interface MoveRequestPayLoad {
   playerId: String,
   moveAction: MoveAction
 }

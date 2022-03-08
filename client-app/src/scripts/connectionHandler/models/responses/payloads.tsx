@@ -1,22 +1,22 @@
 import { Button, GameState } from "../custom-types"
 
 
-export interface NewPlayerPayload {
+export interface NewPlayerResponsePayload {
   id: String
 }
 
-export interface PlayerListPayload {
+export interface PlayerListResponsePayload {
   list: Array<String>
 }
 
-export interface JoinPayload {
+export interface JoinResponsePayload {
   gameId: String,
   gameState: {
     buttons: Array<Button>
   }
 }
 
-export interface MovePayLoad {
+export interface MoveResponsePayLoad {
   playerId: String,
   gameStates: Array<GameState>
 }
