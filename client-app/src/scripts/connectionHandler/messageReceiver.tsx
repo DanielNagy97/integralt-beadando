@@ -17,11 +17,10 @@ export class MessageReceiver {
     this.socketConnection.socket.onmessage = message => {
       const response: SocketMessage = JSON.parse(message.data);
 
-      this.onMessages.forEach( (action: Function, requestType: MessageType) => {
-        if(response.type === requestType){
-          action(response.payload);
-        }
-      });
+      const action = this.onMessages.get(response.type);
+      if(action !== undefined){
+        action(response.payload);
+      }
     }
   }
 }
