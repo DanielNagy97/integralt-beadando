@@ -1,8 +1,9 @@
 
-export enum RequestType {
+export enum MessageType {
   newPlayer = "newPlayer",
   playerList = "playerList",
   leaving = "leaving",
+  create = "create",
   join = "join",
   move = "move"
 }

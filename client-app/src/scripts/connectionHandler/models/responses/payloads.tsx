@@ -1,3 +1,4 @@
+import { GameTypes } from "../../../../enums/game-types"
 import { Button, GameState } from "../custom-types"
 
 
@@ -9,8 +10,14 @@ export interface PlayerListResponsePayload {
   list: Array<String>
 }
 
+// Eddig jó
+
+export interface CreateResponsePayload {
+  gameId: String
+}
+
 export interface JoinResponsePayload {
-  gameId: String,
+  gameType: GameTypes,
   gameState: {
     buttons: Array<Button>
   }

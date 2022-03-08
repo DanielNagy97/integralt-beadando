@@ -5,7 +5,7 @@ import Game from './components/game/game';
 import { Player } from '../src/models/player';
 import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
-import { RequestType } from './scripts/connectionHandler/models/requestType';
+import { MessageType } from './scripts/connectionHandler/models/requestType';
 import { JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
 
 export interface AppProps {}
@@ -32,19 +32,19 @@ class App extends React.Component<AppProps, AppStates> {
   }
 
   componentDidMount(){
-    this.state.messageHandler.receiver.onMessages.set(RequestType.newPlayer,
+    this.state.messageHandler.receiver.onMessages.set(MessageType.newPlayer,
       (payload: NewPlayerResponsePayload) => this.setPlayerId(payload.id)
     );
 
-    this.state.messageHandler.receiver.onMessages.set(RequestType.playerList,
+    this.state.messageHandler.receiver.onMessages.set(MessageType.playerList,
       (payload: PlayerListResponsePayload) => console.log(payload.list)
     );
 
-    this.state.messageHandler.receiver.onMessages.set(RequestType.join,
+    this.state.messageHandler.receiver.onMessages.set(MessageType.join,
       (payload: JoinResponsePayload) => console.log(payload)
     );
 
-    this.state.messageHandler.receiver.onMessages.set(RequestType.move,
+    this.state.messageHandler.receiver.onMessages.set(MessageType.move,
       (payload: MoveResponsePayLoad) => console.log(payload)
     );
   }

@@ -1,7 +1,7 @@
 import { GameTypes } from "../../enums/game-types";
 import { MoveAction } from "./models/custom-types";
 import { JoinRequest, LeavingRequest, MoveRequest, NewPlayerRequest, PlayerListRequest } from "./models/requests/requests";
-import { RequestType } from "./models/requestType";
+import { MessageType } from "./models/requestType";
 import { PlayerSocketConnection } from "./socketConnection";
 
 
@@ -14,7 +14,7 @@ export class MessageSender {
 
   sendNewPlayerRequest(name: String): void {
     const message: NewPlayerRequest = {
-      type: RequestType.newPlayer,
+      type: MessageType.newPlayer,
       payload: {
         name: name
       }
@@ -24,7 +24,7 @@ export class MessageSender {
 
   sendPlayerListRequest(id: String): void {
     const message: PlayerListRequest = {
-      type: RequestType.playerList,
+      type: MessageType.playerList,
       payload: {
         id: id
       }
@@ -34,7 +34,7 @@ export class MessageSender {
 
   sendLeavingRequest(id: String): void {
     const message: LeavingRequest = {
-      type: RequestType.leaving,
+      type: MessageType.leaving,
       payload: {
         id: id
       }
@@ -42,11 +42,12 @@ export class MessageSender {
     this.socketConnection.send(message);
   }
 
-  sendJoinRequest(gameType: GameTypes): void {
+  sendJoinRequest(id: String, gameId: String): void {
     const message: JoinRequest = {
-      type: RequestType.join,
+      type: MessageType.join,
       payload: {
-        gameType: gameType
+        id: id,
+        gameId: gameId
       }
     };
     this.socketConnection.send(message);
@@ -54,9 +55,9 @@ export class MessageSender {
 
   sendMoveRequest(id: String, moveAction: MoveAction) {
     const message: MoveRequest = {
-      type: RequestType.move,
+      type: MessageType.move,
       payload: {
-        playerId: id,
+        id: id,
         moveAction: moveAction
       }
     }

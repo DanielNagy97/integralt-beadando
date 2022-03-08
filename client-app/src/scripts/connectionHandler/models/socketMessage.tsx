@@ -1,7 +1,7 @@
-import { RequestType } from "./requestType";
+import { MessageType } from "./requestType";
 
 
 export interface SocketMessage {
-  type: RequestType,
+  type: MessageType,
   payload: any
 }

@@ -1,24 +1,29 @@
-import { RequestType } from "../requestType";
+import { MessageType } from "../requestType";
 import { SocketMessage } from "../socketMessage";
-import { JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from "./payloads";
+import { CreateResponsePayload, JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from "./payloads";
 
 
 export interface newPlayerResponse extends SocketMessage {
-  type: RequestType.newPlayer,
+  type: MessageType.newPlayer,
   payload: NewPlayerResponsePayload
 }
 
 export interface playerListResponse extends SocketMessage {
-  type: RequestType.playerList,
+  type: MessageType.playerList,
   payload: PlayerListResponsePayload
 }
 
+export interface CreateResponse extends SocketMessage {
+  type: MessageType.create,
+  payload: CreateResponsePayload
+}
+
 export interface JoinResponse extends SocketMessage {
-  type: RequestType.join,
+  type: MessageType.join,
   payload: JoinResponsePayload
 }
 
 export interface MoveResponse extends SocketMessage {
-  type: RequestType.move,
+  type: MessageType.move,
   payload: MoveResponsePayLoad
 }

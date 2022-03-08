@@ -14,11 +14,19 @@ export interface LeavingRequestPayload {
   id: String
 }
 
-export interface JoinRequestPayload {
+// Eddig jó
+
+export interface CreateRequestPayload {
+  id: String,
   gameType: GameTypes
 }
 
+export interface JoinRequestPayload {
+  id: String,
+  gameId: String
+}
+
 export interface MoveRequestPayLoad {
-  playerId: String,
+  id: String,
   moveAction: MoveAction
 }
