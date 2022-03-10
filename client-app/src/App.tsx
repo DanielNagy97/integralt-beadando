@@ -2,6 +2,7 @@ import React from 'react';
 import './App.css';
 import Connect from './components/connect/connect';
 import Game from './components/game/game';
+import Toast from './components/toast/toast'
 import { Player } from '../src/models/player';
 import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
@@ -14,6 +15,10 @@ export interface AppStates {
   page: Pages;
   player: Player;
   messageHandler: PlayerSocketMessageHandler;
+  showToast: boolean;
+  toastMessage: string;
+  toastType: string;
+  toastHeaderMessage: string;
 }
 
 class App extends React.Component<AppProps, AppStates> {
@@ -27,7 +32,11 @@ class App extends React.Component<AppProps, AppStates> {
         id: '',
         name: ''
       },
-      messageHandler: new PlayerSocketMessageHandler()
+      messageHandler: new PlayerSocketMessageHandler(),
+      showToast: false,
+      toastMessage: '',
+      toastType: '',
+      toastHeaderMessage: ''
     }
   }
 
@@ -70,6 +79,20 @@ class App extends React.Component<AppProps, AppStates> {
     });
   }
 
+  setShowToast = (show: boolean) => {
+    this.setState({
+      showToast: show
+    });
+  }
+
+  setToastAttributes = (message: string, type: string, headerMessage: string) => {
+    this.setState({
+      toastMessage: message,
+      toastType: type,
+      toastHeaderMessage: headerMessage
+    });
+  }
+
   render() {
     return (
       <div>
@@ -87,6 +110,15 @@ class App extends React.Component<AppProps, AppStates> {
             onPageChange = {this.setPage}
             player = {this.state.player}
             messageHandler =  {this.state.messageHandler}
+          />
+        }
+        {
+          this.state.showToast &&
+          <Toast 
+            message={this.state.toastMessage}
+            setShowToast={this.setShowToast}
+            toastType={this.state.toastType}
+            headerMessage={this.state.toastHeaderMessage}
           />
         }
       </div>
