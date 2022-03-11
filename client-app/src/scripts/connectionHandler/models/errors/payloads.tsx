@@ -1,7 +1,7 @@
 import { GameTypes } from "../../../../enums/game-types";
 import { Errorcode } from "./errorCodes";
 
-interface ErrorPayload {
+export interface ErrorPayload {
   errorCode: Errorcode,
   errorDetails: any
 }

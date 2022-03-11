@@ -8,22 +8,12 @@ export class PlayerSocketMessageHandler {
   sender: MessageSender;
   receiver: MessageReceiver;
 
-  constructor() {
+  constructor(onOpen: any, onClose: any) {
     this.socketConnection = PlayerSocketConnection.getInstance();
     this.sender = new MessageSender();
     this.receiver = new MessageReceiver();
 
-    this.socketConnection.socket.onopen = this.onOpen;
-    this.socketConnection.socket.onclose = this.onClose;
-  }
-
-  onOpen() {
-    // TODO: Pass the result to the component!
-    console.log("Connected to server!");
-  }
-
-  onClose() {
-    // TODO: Pass the result to the component!
-    console.log("Disconected from server!");
+    this.socketConnection.socket.onopen = onOpen;
+    this.socketConnection.socket.onclose = onClose;
   }
 }

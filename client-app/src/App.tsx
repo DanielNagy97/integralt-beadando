@@ -8,6 +8,8 @@ import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
 import { MessageType } from './scripts/connectionHandler/models/requestType';
 import { JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
+import { Errorcode } from './scripts/connectionHandler/models/errors/errorCodes';
+import { ErrorPayload } from './scripts/connectionHandler/models/errors/payloads';
 
 export interface AppProps {}
 
@@ -32,7 +34,7 @@ class App extends React.Component<AppProps, AppStates> {
         id: '',
         name: ''
       },
-      messageHandler: new PlayerSocketMessageHandler(),
+      messageHandler: new PlayerSocketMessageHandler(this.onConnectionOpen, this.onConnectionClosed),
       showToast: false,
       toastMessage: '',
       toastType: '',
@@ -42,7 +44,10 @@ class App extends React.Component<AppProps, AppStates> {
 
   componentDidMount(){
     this.state.messageHandler.receiver.onMessages.set(MessageType.newPlayer,
-      (payload: NewPlayerResponsePayload) => this.setPlayerId(payload.id)
+      (payload: NewPlayerResponsePayload) => {
+        this.setPlayerId(payload.id);
+        this.setPage(Pages.GAME);
+      }
     );
 
     this.state.messageHandler.receiver.onMessages.set(MessageType.playerList,
@@ -56,6 +61,32 @@ class App extends React.Component<AppProps, AppStates> {
     this.state.messageHandler.receiver.onMessages.set(MessageType.move,
       (payload: MoveResponsePayLoad) => console.log(payload)
     );
+
+    // TODO: Make an error handler!
+    this.state.messageHandler.receiver.onMessages.set(MessageType.error,
+      (payload: ErrorPayload) => {
+        switch (payload.errorCode) {
+          case Errorcode.nameExists:
+            this.setToastAttributes("The name: " + payload.errorDetails.name + " already exists!" , "danger", "Error");
+            break;
+
+          default:
+            this.setToastAttributes("Unknown error: " + payload.errorCode , "warning", "Unknown Error");
+            break;
+        }
+        this.setShowToast(true);
+      }
+    );
+  }
+
+  onConnectionOpen = () => {
+    this.setToastAttributes("The connection to the server is alive" , "success", "Connected to server");
+    this.setShowToast(true);
+  }
+
+  onConnectionClosed = () => {
+    this.setToastAttributes("Connection to the server was lost" , "secondary", "Disconnected from server");
+    this.setShowToast(true);
   }
 
   setPage = (page: Pages) => {

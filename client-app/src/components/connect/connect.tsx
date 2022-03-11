@@ -49,7 +49,8 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
     this.props.messageHandler.sender.sendNewPlayerRequest(this.state.player.name);
 
     this.props.onPlayerConnect(this.state.player)
-    this.props.onPageChange('game')
+    // NOTE: Page change depends on the server's response
+    // this.props.onPageChange('game')
   }
 
   validateForm = () => {
