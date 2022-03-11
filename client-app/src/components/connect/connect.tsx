@@ -13,6 +13,7 @@ export interface ConnectProps {
 
 export interface ConnectStates {
   player: Player,
+  selectedGameType: GameTypes,
   isFormValidated: boolean,
   isNameInvalid: boolean,
   opponentButtons: {
@@ -33,6 +34,7 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
         id: "",
         name: ""
       },
+      selectedGameType: GameTypes.AI_VS_AI,
       isFormValidated: false,
       isNameInvalid: false,
       opponentButtons: {
@@ -94,6 +96,10 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
 
     this.setState({
       showGameList: type === GameTypes.PLAYER_VS_PLAYER ? true : false
+    })
+
+    this.setState({
+      selectedGameType: type
     })
   }
 

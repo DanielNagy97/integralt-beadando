@@ -4,6 +4,7 @@ import './game.css'
 import { Player } from '../../models/player';
 import { Pages } from '../../enums/pages';
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
+import { JoinResponsePayload } from '../../scripts/connectionHandler/models/responses/payloads';
 
 export interface Button {
   color: string,
@@ -15,6 +16,7 @@ export interface Button {
 export interface GameProps{
   onPageChange: Function;
   player: Player;
+  joinPayload: JoinResponsePayload;
   messageHandler: PlayerSocketMessageHandler;
 }
 
@@ -72,7 +74,7 @@ class Game extends React.Component<GameProps, GameStates> {
   }
 
   render() {
-    console.log(this.props.player)
+    console.log(this.props.joinPayload)
     return (
         <div className={'gameComponent'}>
           <div className={'gameNameContainer'}>

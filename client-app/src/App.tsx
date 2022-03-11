@@ -7,15 +7,18 @@ import { Player } from '../src/models/player';
 import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
 import { MessageType } from './scripts/connectionHandler/models/requestType';
-import { JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
+import { CreateResponsePayload, JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
 import { Errorcode } from './scripts/connectionHandler/models/errors/errorCodes';
 import { ErrorPayload } from './scripts/connectionHandler/models/errors/payloads';
+import { GameTypes } from './enums/game-types';
 
 export interface AppProps {}
 
 export interface AppStates {
   page: Pages;
   player: Player;
+  gameId: String;
+  joinPayload: JoinResponsePayload | undefined;
   messageHandler: PlayerSocketMessageHandler;
   showToast: boolean;
   toastMessage: string;
@@ -34,6 +37,8 @@ class App extends React.Component<AppProps, AppStates> {
         id: '',
         name: ''
       },
+      gameId: '',
+      joinPayload: undefined,
       messageHandler: new PlayerSocketMessageHandler(this.onConnectionOpen, this.onConnectionClosed),
       showToast: false,
       toastMessage: '',
@@ -43,10 +48,24 @@ class App extends React.Component<AppProps, AppStates> {
   }
 
   componentDidMount(){
+    // TODO: Move these to the components
+    // Eg.: move the gameId state to the connect...
     this.state.messageHandler.receiver.onMessages.set(MessageType.newPlayer,
       (payload: NewPlayerResponsePayload) => {
         this.setPlayerId(payload.id);
-        this.setPage(Pages.GAME);
+
+        // NOTE: Just an example
+        console.log("The player have chosen the AI vs AI")
+        this.state.messageHandler.sender.sendCreateRequest(this.state.player.id, GameTypes.AI_VS_AI);
+      }
+    );
+
+    this.state.messageHandler.receiver.onMessages.set(MessageType.create,
+      (payload: CreateResponsePayload) => {
+        this.setState({
+          gameId: payload.gameId
+        });
+        this.state.messageHandler.sender.sendJoinRequest(this.state.player.id, this.state.gameId);
       }
     );
 
@@ -55,7 +74,12 @@ class App extends React.Component<AppProps, AppStates> {
     );
 
     this.state.messageHandler.receiver.onMessages.set(MessageType.join,
-      (payload: JoinResponsePayload) => console.log(payload)
+      (payload: JoinResponsePayload) => {
+        this.setState({
+          joinPayload: payload
+        })
+        this.setPage(Pages.GAME);
+      }
     );
 
     this.state.messageHandler.receiver.onMessages.set(MessageType.move,
@@ -136,10 +160,11 @@ class App extends React.Component<AppProps, AppStates> {
           />
         }
         {
-          this.state.page === 'game' && this.state.player.id !== '' &&
+          this.state.page === 'game' && this.state.joinPayload !== undefined &&
           <Game 
             onPageChange = {this.setPage}
             player = {this.state.player}
+            joinPayload = {this.state.joinPayload}
             messageHandler =  {this.state.messageHandler}
           />
         }

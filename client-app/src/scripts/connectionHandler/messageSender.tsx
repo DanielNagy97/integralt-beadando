@@ -1,6 +1,6 @@
 import { GameTypes } from "../../enums/game-types";
 import { MoveAction } from "./models/custom-types";
-import { JoinRequest, LeavingRequest, MoveRequest, NewPlayerRequest, PlayerListRequest } from "./models/requests/requests";
+import { CreateRequest, JoinRequest, LeavingRequest, MoveRequest, NewPlayerRequest, PlayerListRequest } from "./models/requests/requests";
 import { MessageType } from "./models/requestType";
 import { PlayerSocketConnection } from "./socketConnection";
 
@@ -37,6 +37,17 @@ export class MessageSender {
       type: MessageType.leaving,
       payload: {
         id: id
+      }
+    };
+    this.socketConnection.send(message);
+  }
+
+  sendCreateRequest(id: String, gameType: GameTypes): void {
+    const message: CreateRequest = {
+      type: MessageType.create,
+      payload: {
+        id: id,
+        gameType: gameType
       }
     };
     this.socketConnection.send(message);
