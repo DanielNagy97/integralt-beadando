@@ -7,6 +7,7 @@ const leavingRequest = require("./requests/leavingRequest");
 const playerListRequest = require("./requests/playerListRequest");
 const createRequest = require("./requests/createRequest");
 const joinRequest = require("./requests/joinRequest");
+const calculatePositions = require("./methods/calculatePositions");
 
 app.use(cors());
 app.listen(3000, () => console.log("Listening Express on port 3000"));

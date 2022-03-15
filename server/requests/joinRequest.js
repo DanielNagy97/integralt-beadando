@@ -1,6 +1,7 @@
 const { players, matches } = require("../data/hashmaps");
 const errorSender = require("../methods/errorSender");
 const normalSender = require("../methods/normalSender");
+const calculatePositions = require("../methods/calculatePositions");
 
 module.exports = function joinMatch(connection, response) {
     if (!players.has(response.payload.id)) {
@@ -40,7 +41,7 @@ module.exports = function joinMatch(connection, response) {
         {
             "gameType": matches.get(response.payload.gameId).matchType,
             "gameState": {
-                "buttons": matches.get(response.payload.gameId).buttons
+                "buttons": calculatePositions.removeSpeed(matches.get(response.payload.gameId).buttons)
             }
         })
 }

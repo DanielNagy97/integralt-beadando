@@ -2,6 +2,7 @@ const { players, matches } = require("../data/hashmaps");
 const errorSender = require("../methods/errorSender");
 const matchIdCreate = require("../methods/matchIdCreate");
 const normalSender = require("../methods/normalSender");
+const calculatePositions = require("../methods/calculatePositions");
 
 module.exports = function createMatch(connection, response) {
     if (!players.has(response.payload.id)) {
@@ -26,28 +27,12 @@ module.exports = function createMatch(connection, response) {
         currentMatch = matchesIterator.next();
     }
 
-    var newMatchButtons = [
-        { color: "red", id: "0", pos: [70, 250] },
-        { color: "red", id: "1", pos: [250, 160] },
-        { color: "red", id: "2", pos: [250, 340] },
-        { color: "red", id: "3", pos: [430, 70] },
-        { color: "red", id: "4", pos: [430, 250] },
-        { color: "red", id: "5", pos: [430, 430] },
-        { color: "blue", id: "0", pos: [930, 250] },
-        { color: "blue", id: "1", pos: [750, 160] },
-        { color: "blue", id: "2", pos: [750, 340] },
-        { color: "blue", id: "3", pos: [570, 70] },
-        { color: "blue", id: "4", pos: [570, 250] },
-        { color: "blue", id: "5", pos: [570, 430] },
-        { color: "white", id: "-1", pos: [500, 250] }
-    ];
-
     const matchId = matchIdCreate();
 
     if (["player-vs-ai", "ai-vs-ai", "player-vs-player"].includes(response.payload.gameType)) {
         matches.set(matchId, {
             "players": [],
-            "buttons": newMatchButtons,
+            "buttons": calculatePositions.getStartingButtonPositions(),
             "points": [0, 0],
             "matchType": response.payload.gameType,
             "nextMove": 0
