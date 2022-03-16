@@ -7,10 +7,10 @@ import { Player } from '../src/models/player';
 import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
 import { MessageType } from './scripts/connectionHandler/models/requestType';
-import { CreateResponsePayload, JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
-import { Errorcode } from './scripts/connectionHandler/models/errors/errorCodes';
+import { CreateResponsePayload, JoinResponsePayload, NewPlayerResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
 import { ErrorPayload } from './scripts/connectionHandler/models/errors/payloads';
 import { GameTypes } from './enums/game-types';
+import { ErrorHandler, ErrorMessage } from './scripts/errorHandler/errorHandler';
 
 export interface AppProps {}
 
@@ -24,6 +24,7 @@ export interface AppStates {
   toastMessage: string;
   toastType: string;
   toastHeaderMessage: string;
+  errorHandler: ErrorHandler;
 }
 
 class App extends React.Component<AppProps, AppStates> {
@@ -43,7 +44,8 @@ class App extends React.Component<AppProps, AppStates> {
       showToast: false,
       toastMessage: '',
       toastType: '',
-      toastHeaderMessage: ''
+      toastHeaderMessage: '',
+      errorHandler: new ErrorHandler()
     }
   }
 
@@ -69,10 +71,6 @@ class App extends React.Component<AppProps, AppStates> {
       }
     );
 
-    this.state.messageHandler.receiver.onMessages.set(MessageType.playerList,
-      (payload: PlayerListResponsePayload) => console.log(payload.list)
-    );
-
     this.state.messageHandler.receiver.onMessages.set(MessageType.join,
       (payload: JoinResponsePayload) => {
         this.setState({
@@ -82,22 +80,14 @@ class App extends React.Component<AppProps, AppStates> {
       }
     );
 
-    this.state.messageHandler.receiver.onMessages.set(MessageType.move,
-      (payload: MoveResponsePayLoad) => console.log(payload)
+    this.state.messageHandler.receiver.onMessages.set(MessageType.playerList,
+      (payload: PlayerListResponsePayload) => console.log(payload.list)
     );
 
-    // TODO: Make an error handler!
     this.state.messageHandler.receiver.onMessages.set(MessageType.error,
       (payload: ErrorPayload) => {
-        switch (payload.errorCode) {
-          case Errorcode.nameExists:
-            this.setToastAttributes("The name: " + payload.errorDetails.name + " already exists!" , "danger", "Error");
-            break;
-
-          default:
-            this.setToastAttributes("Unknown error: " + payload.errorCode , "warning", "Unknown Error");
-            break;
-        }
+        const errorMessage: ErrorMessage = this.state.errorHandler.handleError(payload);
+        this.setToastAttributes(errorMessage.message, errorMessage.type, errorMessage.headerMessage);
         this.setShowToast(true);
       }
     );
