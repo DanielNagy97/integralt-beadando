@@ -3,17 +3,15 @@ import { Button, GameState } from "../custom-types"
 
 
 export interface NewPlayerResponsePayload {
-  id: String
+  id: string
 }
 
 export interface PlayerListResponsePayload {
-  list: Array<String>
+  list: Array<string>
 }
 
-// Eddig jó
-
 export interface CreateResponsePayload {
-  gameId: String
+  gameId: string
 }
 
 export interface JoinResponsePayload {
@@ -24,6 +22,6 @@ export interface JoinResponsePayload {
 }
 
 export interface MoveResponsePayLoad {
-  playerId: String,
+  playerId: string,
   gameStates: Array<GameState>
 }

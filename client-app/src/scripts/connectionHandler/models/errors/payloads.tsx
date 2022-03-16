@@ -9,28 +9,28 @@ export interface ErrorPayload {
 export interface NameExistsErrorPayload extends ErrorPayload {
   errorCode: Errorcode.nameExists,
   errorDetails: {
-    name: String
+    name: string
   }
 }
 
 export interface IdNotExistsErrorPayload extends ErrorPayload {
   errorCode: Errorcode.idNotExists,
   errorDetails: {
-    id: String
+    id: string
   }
 }
 
 export interface IdForAnotherMatchErrorPayload extends ErrorPayload {
   errorCode: Errorcode.idForAnotherMatch,
   errorDetails: {
-    gameid: String
+    gameid: string
   }
 }
 
 export interface NoSuchMatchErrorPayload extends ErrorPayload {
   errorCode: Errorcode.noSuchMatch,
   errorDetails: {
-    gameid: String
+    gameid: string
   }
 }
 

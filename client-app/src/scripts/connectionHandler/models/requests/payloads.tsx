@@ -3,30 +3,29 @@ import { MoveAction } from "../custom-types";
 
 
 export interface NewPlayerRequestPayload {
-  name: String
+  name: string
 }
 
 export interface PlayerListRequestPayload {
-  id: String
+  id: string
 }
 
 export interface LeavingRequestPayload {
-  id: String
+  id: string
 }
 
-// Eddig jó
-
 export interface CreateRequestPayload {
-  id: String,
+  id: string,
   gameType: GameTypes
 }
 
 export interface JoinRequestPayload {
-  id: String,
-  gameId: String
+  id: string,
+  gameId: string
 }
 
 export interface MoveRequestPayLoad {
-  id: String,
+  id: string,
+  gameId: string,
   moveAction: MoveAction
 }

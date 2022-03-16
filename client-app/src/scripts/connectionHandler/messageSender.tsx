@@ -12,7 +12,7 @@ export class MessageSender {
     this.socketConnection = PlayerSocketConnection.getInstance();
   }
 
-  sendNewPlayerRequest(name: String): void {
+  sendNewPlayerRequest(name: string): void {
     const message: NewPlayerRequest = {
       type: MessageType.newPlayer,
       payload: {
@@ -22,7 +22,7 @@ export class MessageSender {
     this.socketConnection.send(message);
   }
 
-  sendPlayerListRequest(id: String): void {
+  sendPlayerListRequest(id: string): void {
     const message: PlayerListRequest = {
       type: MessageType.playerList,
       payload: {
@@ -32,7 +32,7 @@ export class MessageSender {
     this.socketConnection.send(message);
   }
 
-  sendLeavingRequest(id: String): void {
+  sendLeavingRequest(id: string): void {
     const message: LeavingRequest = {
       type: MessageType.leaving,
       payload: {
@@ -42,7 +42,7 @@ export class MessageSender {
     this.socketConnection.send(message);
   }
 
-  sendCreateRequest(id: String, gameType: GameTypes): void {
+  sendCreateRequest(id: string, gameType: GameTypes): void {
     const message: CreateRequest = {
       type: MessageType.create,
       payload: {
@@ -53,7 +53,7 @@ export class MessageSender {
     this.socketConnection.send(message);
   }
 
-  sendJoinRequest(id: String, gameId: String): void {
+  sendJoinRequest(id: string, gameId: string): void {
     const message: JoinRequest = {
       type: MessageType.join,
       payload: {
@@ -64,11 +64,12 @@ export class MessageSender {
     this.socketConnection.send(message);
   }
 
-  sendMoveRequest(id: String, moveAction: MoveAction) {
+  sendMoveRequest(id: string, gameId: string, moveAction: MoveAction) {
     const message: MoveRequest = {
       type: MessageType.move,
       payload: {
         id: id,
+        gameId: gameId,
         moveAction: moveAction
       }
     }

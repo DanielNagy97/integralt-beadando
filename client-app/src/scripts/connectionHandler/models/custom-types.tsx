@@ -2,18 +2,18 @@
 
 export interface Button {
   color: "red",
-  id: String,
-  pos: Float32Array
+  id: string,
+  pos: [number, number]
 }
 
 export interface MoveAction {
-  button: { color: String, id: String },
-  direction: Float32Array
+  button: { color: string, id: string },
+  direction: [number, number]
 }
 
 export interface GameState {
   gameState: {
-    buttons: Array<Button>
+    buttons: Button[]
   },
   timestamp: Date
 }

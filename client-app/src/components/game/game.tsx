@@ -4,7 +4,9 @@ import './game.css'
 import { Player } from '../../models/player';
 import { Pages } from '../../enums/pages';
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
-import { JoinResponsePayload } from '../../scripts/connectionHandler/models/responses/payloads';
+import { JoinResponsePayload, MoveResponsePayLoad } from '../../scripts/connectionHandler/models/responses/payloads';
+import { MessageType } from '../../scripts/connectionHandler/models/requestType';
+import { GameState } from '../../scripts/connectionHandler/models/custom-types';
 
 export interface Button {
   color: string,
@@ -22,6 +24,7 @@ export interface GameProps{
 
 export interface GameStates{
   buttonsExample: Button[];
+  gameStates: Array<GameState>;
 }
 
 class Game extends React.Component<GameProps, GameStates> {
@@ -29,26 +32,35 @@ class Game extends React.Component<GameProps, GameStates> {
     super(props)
 
     this.state = {
-      buttonsExample: [
-        {color: "red", id: "0", pos: [70, 250], radius: 20},
-        {color: "red", id: "1", pos: [250, 160], radius: 20},
-        {color: "red", id: "2", pos: [250, 340], radius: 20},
-        {color: "red", id: "3", pos: [430, 70], radius: 20},
-        {color: "red", id: "4", pos: [430, 250], radius: 20},
-        {color: "red", id: "5", pos: [430, 430], radius: 20},
-        {color: "blue", id: "6", pos: [930, 250], radius: 20},
-        {color: "blue", id: "7", pos: [750, 160], radius: 20},
-        {color: "blue", id: "8", pos: [750, 340], radius: 20},
-        {color: "blue", id: "9", pos: [570, 70], radius: 20},
-        {color: "blue", id: "10", pos: [570, 250], radius: 20},
-        {color: "blue", id: "11", pos: [570, 430], radius: 20},
-        {color: "white", id: "-1", pos: [500, 250], radius: 10}
-      ]
+      buttonsExample: [],
+      gameStates: []
     }
   }
 
   componentDidMount() {
+    this.props.messageHandler.receiver.onMessages.set(MessageType.move,
+      (payload: MoveResponsePayLoad) => {
+        this.setState({
+          gameStates: payload.gameStates
+        });
+      }
+    );
+    this.makeInitialState();
     this.draw()
+  }
+
+  componentDidUpdate() {
+    // Drawing on state change
+    this.draw();
+  }
+
+  makeInitialState = () => {
+    let buttonsExample: Button[] = this.props.joinPayload.gameState.buttons.map((button) => {
+      return button.color == "red" || button.color == "blue" ? {...button, radius: 20} : {...button, radius: 10};
+    });
+    this.setState({
+      buttonsExample: buttonsExample
+    })
   }
 
   leaveGame() {
@@ -61,6 +73,7 @@ class Game extends React.Component<GameProps, GameStates> {
     const ctx = canvas.getContext('2d');
     
     if (ctx !== null) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clearing the canvas
       for (let button of this.state.buttonsExample) {
         ctx.beginPath();
         ctx.fillStyle = button.color;
@@ -74,7 +87,6 @@ class Game extends React.Component<GameProps, GameStates> {
   }
 
   render() {
-    console.log(this.props.joinPayload)
     return (
         <div className={'gameComponent'}>
           <div className={'gameNameContainer'}>

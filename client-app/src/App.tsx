@@ -17,7 +17,7 @@ export interface AppProps {}
 export interface AppStates {
   page: Pages;
   player: Player;
-  gameId: String;
+  gameId: string;
   joinPayload: JoinResponsePayload | undefined;
   messageHandler: PlayerSocketMessageHandler;
   showToast: boolean;
@@ -125,7 +125,7 @@ class App extends React.Component<AppProps, AppStates> {
       })
   }
 
-  setPlayerId = (id: String) => {
+  setPlayerId = (id: string) => {
     this.setState({
       player: {
         ...this.state.player,
