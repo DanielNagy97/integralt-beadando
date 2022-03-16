@@ -4,10 +4,13 @@ import './connect.css'
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
 import { Player } from '../../models/player';
 import { GameTypes } from '../../enums/game-types';
+import { MessageType } from '../../scripts/connectionHandler/models/requestType';
+import { CreateResponsePayload, NewPlayerResponsePayload } from '../../scripts/connectionHandler/models/responses/payloads';
 
 export interface ConnectProps {
   onPageChange: Function;
   onPlayerConnect: Function;
+  setGameId: Function;
   messageHandler: PlayerSocketMessageHandler;
 }
 
@@ -47,12 +50,32 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
     }
   }
 
+  componentDidMount(){
+    this.props.messageHandler.receiver.onMessages.set(MessageType.newPlayer,
+      (payload: NewPlayerResponsePayload) => {
+        this.setState({
+          player: {...this.state.player, id: payload.id}
+        });
+
+        this.props.onPlayerConnect(this.state.player);
+
+        if(this.state.selectedGameType !== undefined){
+          this.props.messageHandler.sender.sendCreateRequest(this.state.player.id, this.state.selectedGameType);
+        }
+      }
+    );
+
+    this.props.messageHandler.receiver.onMessages.set(MessageType.create,
+      (payload: CreateResponsePayload) => {
+        this.props.setGameId(payload.gameId);
+
+        this.props.messageHandler.sender.sendJoinRequest(this.state.player.id, payload.gameId);
+      }
+    );
+  }
+
   connect() {
     this.props.messageHandler.sender.sendNewPlayerRequest(this.state.player.name);
-
-    this.props.onPlayerConnect(this.state.player)
-    // NOTE: Page change depends on the server's response
-    // this.props.onPageChange('game')
   }
 
   validateForm = () => {

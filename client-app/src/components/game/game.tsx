@@ -19,6 +19,7 @@ export interface GameProps{
   onPageChange: Function;
   player: Player;
   joinPayload: JoinResponsePayload;
+  gameId: string;
   messageHandler: PlayerSocketMessageHandler;
 }
 
@@ -56,7 +57,7 @@ class Game extends React.Component<GameProps, GameStates> {
 
   makeInitialState = () => {
     let buttonsExample: Button[] = this.props.joinPayload.gameState.buttons.map((button) => {
-      return button.color == "red" || button.color == "blue" ? {...button, radius: 20} : {...button, radius: 10};
+      return button.color === "red" || button.color === "blue" ? {...button, radius: 20} : {...button, radius: 10};
     });
     this.setState({
       buttonsExample: buttonsExample
