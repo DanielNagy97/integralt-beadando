@@ -8,7 +8,6 @@ import { MessageType } from '../../scripts/connectionHandler/models/requestType'
 import { CreateResponsePayload, NewPlayerResponsePayload } from '../../scripts/connectionHandler/models/responses/payloads';
 
 export interface ConnectProps {
-  onPageChange: Function;
   onPlayerConnect: Function;
   setGameId: Function;
   messageHandler: PlayerSocketMessageHandler;
@@ -35,7 +34,8 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
     this.state = {
       player: {
         id: "",
-        name: ""
+        name: "",
+        gameType: GameTypes.AI_VS_AI
       },
       selectedGameType: GameTypes.AI_VS_AI,
       isFormValidated: false,
@@ -113,6 +113,10 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
           [GameTypes.AI_VS_AI]: type === GameTypes.AI_VS_AI ? "secondary" : "outline-secondary",
           [GameTypes.PLAYER_VS_AI]: type === GameTypes.PLAYER_VS_AI ? "secondary" : "outline-secondary",
           [GameTypes.PLAYER_VS_PLAYER]: type === GameTypes.PLAYER_VS_PLAYER ? "secondary" : "outline-secondary"
+        },
+        player: {
+          ...this.state.player,
+          gameType: type
         }
       })
     }

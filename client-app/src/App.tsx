@@ -10,6 +10,7 @@ import { MessageType } from './scripts/connectionHandler/models/requestType';
 import { JoinResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
 import { ErrorPayload } from './scripts/connectionHandler/models/errors/payloads';
 import { ErrorHandler, ErrorMessage } from './scripts/errorHandler/errorHandler';
+import { GameTypes } from './enums/game-types';
 
 export interface AppProps {}
 
@@ -35,7 +36,8 @@ class App extends React.Component<AppProps, AppStates> {
       page: Pages.CONNECT,
       player: {
         id: '',
-        name: ''
+        name: '',
+        gameType: GameTypes.AI_VS_AI
       },
       gameId: '',
       joinPayload: undefined,
@@ -120,7 +122,6 @@ class App extends React.Component<AppProps, AppStates> {
         {
           this.state.page === Pages.CONNECT &&
           <Connect 
-            onPageChange = {this.setPage}
             onPlayerConnect = {this.setPlayer}
             setGameId = {this.setGameId}
             messageHandler =  {this.state.messageHandler}

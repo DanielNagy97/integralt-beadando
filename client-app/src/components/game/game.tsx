@@ -7,6 +7,7 @@ import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/play
 import { JoinResponsePayload, MoveResponsePayLoad } from '../../scripts/connectionHandler/models/responses/payloads';
 import { MessageType } from '../../scripts/connectionHandler/models/requestType';
 import { GameState } from '../../scripts/connectionHandler/models/custom-types';
+import { GameTypes } from '../../enums/game-types';
 
 export interface Button {
   color: string,
@@ -58,6 +59,7 @@ class Game extends React.Component<GameProps, GameStates> {
     this.props.onPageChange(Pages.CONNECT);
   }
 
+  //TODO cache images
   draw = () => {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d');
@@ -90,10 +92,10 @@ class Game extends React.Component<GameProps, GameStates> {
         <div className={'gameComponent'}>
           <div className={'gameNameContainer'}>
             <div className={'gameFirstName'}>
-              {this.props.player.name}
+              {this.props.player.gameType === GameTypes.AI_VS_AI ? "AI": this.props.player.name}
             </div>
             <div className={'gameSecondName'}>
-              AI
+              {this.props.player.gameType === GameTypes.PLAYER_VS_PLAYER ? "Other player's name" : "AI"}
             </div>
           </div>
           <div className={'gameSpace'}>
