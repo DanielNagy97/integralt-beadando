@@ -11,8 +11,7 @@ import { GameState } from '../../scripts/connectionHandler/models/custom-types';
 export interface Button {
   color: string,
   id: string,
-  pos: [number, number],
-  radius: number
+  pos: [number, number]
 }
 
 export interface GameProps{
@@ -24,7 +23,7 @@ export interface GameProps{
 }
 
 export interface GameStates{
-  buttonsExample: Button[];
+  buttons: Button[];
   gameStates: Array<GameState>;
 }
 
@@ -33,7 +32,7 @@ class Game extends React.Component<GameProps, GameStates> {
     super(props)
 
     this.state = {
-      buttonsExample: [],
+      buttons: this.props.joinPayload.gameState.buttons,
       gameStates: []
     }
   }
@@ -46,22 +45,12 @@ class Game extends React.Component<GameProps, GameStates> {
         });
       }
     );
-    this.makeInitialState();
     this.draw()
   }
 
   componentDidUpdate() {
     // Drawing on state change
     this.draw();
-  }
-
-  makeInitialState = () => {
-    let buttonsExample: Button[] = this.props.joinPayload.gameState.buttons.map((button) => {
-      return button.color === "red" || button.color === "blue" ? {...button, radius: 20} : {...button, radius: 10};
-    });
-    this.setState({
-      buttonsExample: buttonsExample
-    })
   }
 
   leaveGame() {
@@ -75,15 +64,24 @@ class Game extends React.Component<GameProps, GameStates> {
     
     if (ctx !== null) {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clearing the canvas
-      for (let button of this.state.buttonsExample) {
+      for (let button of this.state.buttons) {
+        let radius = button.color == 'white' ? 10 : 20;
+
+        ctx.save();
+
         ctx.beginPath();
-        ctx.fillStyle = button.color;
-        ctx.arc(button.pos[0], button.pos[1],                        
-                button.radius, 0, 2 * Math.PI);
-        ctx.fill();
-        ctx.stroke();
+        ctx.arc(button.pos[0], button.pos[1], radius, 0, 2 * Math.PI);
+        ctx.stroke()
+        ctx.closePath();
+
+        ctx.clip();
+
+        var img = new Image();
+        img.src = button.color === "blue" ? 'blue_ball.png' : button.color === "red" ? 'red_ball.png' : 'white_ball.png';
+        ctx.drawImage(img, button.pos[0]-radius, button.pos[1]-radius)
+        
+        ctx.restore();
       }
-      
     }
   }
 

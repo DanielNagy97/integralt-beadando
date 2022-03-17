@@ -118,7 +118,7 @@ class App extends React.Component<AppProps, AppStates> {
     return (
       <div>
         {
-          this.state.page === 'connect' &&
+          this.state.page === Pages.CONNECT &&
           <Connect 
             onPageChange = {this.setPage}
             onPlayerConnect = {this.setPlayer}
@@ -127,7 +127,7 @@ class App extends React.Component<AppProps, AppStates> {
           />
         }
         {
-          this.state.page === 'game' && this.state.joinPayload !== undefined &&
+          this.state.page === Pages.GAME && this.state.joinPayload !== undefined &&
           <Game 
             onPageChange = {this.setPage}
             player = {this.state.player}
