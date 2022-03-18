@@ -3,6 +3,8 @@ const normalButtonRadius = 20;
 const ballRadius = 10;
 const slowing = 0.5;
 const speedThreshold = 10;
+const maxTime = 10;
+const minTime = 1;
 
 function vectorLength(speed) {
     return Math.sqrt(Math.pow(speed[0], 2) + Math.pow(speed[1], 2));
@@ -12,21 +14,32 @@ function distanceVectorOfPoints(pos1, pos2) {
     return [Math.abs(pos1[0] - pos2[0]), Math.abs(pos1[1] - pos2[1])];
 }
 
+function getRadius(button) {
+    return button.id == -1 ? ballRadius : normalButtonRadius;
+}
+
 function isCollidedWithWalls(button) {
-    var buttonRadius = normalButtonRadius;
-    if (button.id == -1) {
-        buttonRadius = ballRadius;
+    var buttonRadius = getRadius(button);
+    var returnState = 0;
+    if (button.pos[0] < buttonRadius) {
+        returnState = 1;
     }
-    return button.pos[0] <= buttonRadius
-        || button.pos[0] >= (wallMax[0] - buttonRadius)
-        || button.pos[1] <= buttonRadius
-        || button.pos[1] >= (wallMax[1] - buttonRadius);
+    else if (button.pos[0] > (wallMax[0] - buttonRadius)) {
+        returnState = 2;
+    }
+    else if (button.pos[1] < buttonRadius) {
+        returnState = 3;
+    }
+    else if (button.pos[1] > (wallMax[1] - buttonRadius)) {
+        returnState = 4;
+    }
+    return returnState;
 }
 
 function allIsCollidedWithWalls(buttons) {
     var isCollided = [];
     for (let i = 0; i < buttons.length; i++) {
-        if (isCollidedWithWalls(buttons[i])) {
+        if (isCollidedWithWalls(buttons[i]) != 0) {
             isCollided.push(i);
         }
     }
@@ -80,37 +93,57 @@ function removeSpeed(buttons) {
     return staticButtons;
 }
 
+function slowSpeed(speed, ms) {
+    var newSpeed = [0, 0];
+    if (speed[0] > 0) {
+        newSpeed[0] = speed[0] - (slowing * ms);
+    }
+    else if (speed[0] < 0) {
+        newSpeed[0] = speed[0] + (slowing * ms);
+    }
+    if (newSpeed[0] < speedThreshold && newSpeed[0] > - speedThreshold) {
+        newSpeed[0] = 0;
+    }
+    if (speed[0] > 0) {
+        newSpeed[1] = speed[1] - (slowing * ms);
+    }
+    else if (speed[0] < 0) {
+        newSpeed[1] = speed[1] + (slowing * ms);
+    }
+    if (newSpeed[1] < speedThreshold && newSpeed[1] > - speedThreshold) {
+        newSpeed[1] = 0;
+    }
+    return newSpeed;
+}
+
+function movedDistance(speed, ms) {
+    var distance = [0, 0];
+    distance[0] = ((speed[0] / 1000) * ms);
+    distance[1] = ((speed[1] / 1000) * ms);
+    return distance;
+}
+
+function newPosition(pos, speed, ms) {
+    var newPos = [0, 0];
+    var distance = movedDistance(speed, ms);
+    newPos[0] = pos[0] + distance[0];
+    newPos[1] = pos[1] + distance[1];
+    return newPos;
+}
+
+function moveButtonForwardInTime(button, ms) {
+    return {
+        "color": button.color,
+        "id": button.id,
+        "pos": newPosition(button.pos, button.speed, ms),
+        "speed": slowSpeed(button.speed, ms)
+    }
+}
+
 function jumpForwardInTime(buttons, ms) {
     var newButtons = [];
-    var newPos = [0, 0];
-    var newSpeed = [0, 0];
     for (let i = 0; i < buttons.length; i++) {
-        newPos[0] = buttons[i].pos[0] + (buttons[i].speed[0] / 1000);
-        newPos[1] = buttons[i].pos[1] + (buttons[i].speed[1] / 1000);
-        if (buttons[i].speed[0] > 0) {
-            newSpeed[0] = buttons[i].speed[0] - (slowing * ms);
-        }
-        else if (buttons[i].speed[0] < 0) {
-            newSpeed[0] = buttons[i].speed[0] + (slowing * ms);
-        }
-        if (newSpeed[0] < speedThreshold && newSpeed[0] > - speedThreshold) {
-            newSpeed[0] = 0;
-        }
-        if (buttons[i].speed[0] > 0) {
-            newSpeed[1] = buttons[i].speed[1] - (slowing * ms);
-        }
-        else if (buttons[i].speed[0] < 0) {
-            newSpeed[1] = buttons[i].speed[1] + (slowing * ms);
-        }
-        if (newSpeed[1] < speedThreshold && newSpeed[1] > - speedThreshold) {
-            newSpeed[1] = 0;
-        }
-        newButtons.push({
-            "color": buttons[i].color,
-            "id": buttons[i].id,
-            "pos": newPos,
-            "speed": newSpeed
-        });
+        newButtons.push(moveButtonForwardInTime(buttons[i], ms));
     }
     return newButtons;
 }
@@ -125,13 +158,106 @@ function allIsStopped(buttons) {
     return isStopped;
 }
 
+function fixWallHit(button, ms) {
+    var lastButton = button;
+    var newButton = moveButtonForwardInTime(lastButton, ms);
+    var distance = movedDistance(lastButton.speed, ms);
+    var toHit = [0, 0];
+    var wallHit = isCollidedWithWalls(newButton);
+    while (wallHit != 0) {
+        switch (wallHit) {
+            case 1:
+                toHit[0] = getRadius(button) - lastButton.pos[0];
+                toHit[1] = (toHit[0] / distance[0]) * distance[1];
+                distance[0] = -1 * (distance[0] - toHit[0]);
+                distance[1] = distance[1] - toHit[1];
+                lastButton.pos[0] = lastButton.pos[0] + toHit[0];
+                lastButton.pos[1] = lastButton.pos[1] + toHit[1];
+                newButton.pos[0] = lastButton.pos[0] + distance[0];
+                newButton.pos[1] = lastButton.pos[1] + distance[1];
+                newButton.speed[0] = -1 * newButton.speed[0];
+                break;
+            case 2:
+                toHit[0] = (getRadius(button) + wallMax[0]) - lastButton.pos[0];
+                toHit[1] = (toHit[0] / distance[0]) * distance[1];
+                distance[0] = -1 * (distance[0] - toHit[0]);
+                distance[1] = distance[1] - toHit[1];
+                lastButton.pos[0] = lastButton.pos[0] + toHit[0];
+                lastButton.pos[1] = lastButton.pos[1] + toHit[1];
+                newButton.pos[0] = lastButton.pos[0] + distance[0];
+                newButton.pos[1] = lastButton.pos[1] + distance[1];
+                newButton.speed[0] = -1 * newButton.speed[0];
+                break;
+            case 3:
+                toHit[1] = getRadius(button) - lastButton.pos[1];
+                toHit[0] = (toHit[1] / distance[1]) * distance[0];
+                distance[1] = -1 * (distance[1] - toHit[1]);
+                distance[0] = distance[0] - toHit[0];
+                lastButton.pos[0] = lastButton.pos[0] + toHit[0];
+                lastButton.pos[1] = lastButton.pos[1] + toHit[1];
+                newButton.pos[0] = lastButton.pos[0] + distance[0];
+                newButton.pos[1] = lastButton.pos[1] + distance[1];
+                newButton.speed[1] = -1 * newButton.speed[1];
+                break;
+            case 4:
+                toHit[1] = (getRadius(button) + wallMax[1]) - lastButton.pos[1];
+                toHit[0] = (toHit[1] / distance[1]) * distance[0];
+                distance[1] = -1 * (distance[1] - toHit[1]);
+                distance[0] = distance[0] - toHit[0];
+                lastButton.pos[0] = lastButton.pos[0] + toHit[0];
+                lastButton.pos[1] = lastButton.pos[1] + toHit[1];
+                newButton.pos[0] = lastButton.pos[0] + distance[0];
+                newButton.pos[1] = lastButton.pos[1] + distance[1];
+                newButton.speed[1] = -1 * newButton.speed[1];
+                break;
+        }
+        wallHit = isCollidedWithWalls(newButton);
+    }
+    return newButton;
+}
+
+function fixAllWallHits(buttons, ms) {
+    var newButtons = jumpForwardInTime(buttons, ms);
+    for (let i = 0; i < buttons.length; i++) {
+        if (isCollidedWithWalls(newButtons[i]) != 0) {
+            newButtons[i] = fixWallHit(buttons[i], ms);
+        }
+    }
+    return newButtons;
+}
+
+function findClosestWallhit(buttons) {
+    var ms = maxTime;
+    var realms = maxTime;
+    var lastButtons = buttons;
+    var newButtons = jumpForwardInTime(lastButtons, ms);
+    var currentButtons;
+    if (allIsCollidedWithWalls(newButtons).length != 0) {
+        while (ms > minTime) {
+            currentButtons = jumpForwardInTime(lastButtons, ms / 2);
+            if (allIsCollidedWithWalls(currentButtons).length != 0) {
+                newButtons = currentButtons;
+                realms = realms - ms / 2;
+            }
+            else {
+                lastButtons = currentButtons;
+            }
+            ms = ms / 2;
+        }
+    }
+    return {"newButtons": newButtons, "realms": realms, "ms" : ms };
+}
+
+function findAndFixClosestWallHit(buttons) {
+    var closestState = findClosestWallhit(buttons);
+    if (closestState.ms != maxTime) {
+        closestState.newButtons = fixAllWallHits(buttons, closestState.realms);
+    }
+    return { "newButtons": closestState.newButtons, "realms": closestState.realms };
+}
 
 
-exports.isCollidedWithWalls = isCollidedWithWalls;
-exports.allIsCollidedWithWalls = allIsCollidedWithWalls;
-exports.isCollidedWithButtons = isCollidedWithButtons;
-exports.allIsCollidedWithButtons = allIsCollidedWithButtons;
 exports.getStartingButtonPositions = getStartingButtonPositions;
 exports.removeSpeed = removeSpeed;
-exports.jumpForwardInTime = jumpForwardInTime;
+exports.findAndFixClosestWallHit = findAndFixClosestWallHit;
 exports.allIsStopped = allIsStopped;

@@ -47,3 +47,22 @@ wsServer.on("request", request => {
         }
     });
 });
+
+/*
+var buttons = calculatePositions.getStartingButtonPositions();
+var timeSpent = 0;
+var nextState;
+buttons[0].pos[0] = 20.5;
+buttons[0].pos[1] = 21;
+buttons[0].speed[0] = -200;
+buttons[0].speed[1] = -100;
+buttons[1].pos[0] = 20.5;
+buttons[1].pos[1] = 21;
+buttons[1].speed[0] = -100;
+buttons[1].speed[1] = -100;
+while (calculatePositions.allIsStopped(buttons).length != 0) {
+    nextState = calculatePositions.findAndFixClosestWallHit(buttons);
+    buttons = nextState.newButtons;
+    timeSpent += nextState.realms;
+}
+*/
