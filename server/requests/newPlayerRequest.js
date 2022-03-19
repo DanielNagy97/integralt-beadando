@@ -1,9 +1,22 @@
 const { players } = require("../data/hashmaps");
+const errorSender = require("../methods/errorSender");
 const idCreate = require("../methods/idCreate.js");
 const normalSender = require("../methods/normalSender");
 const playerListMaker = require("../methods/playerListMaker");
 
 module.exports = function newPlayer(connection, response) {
+
+    var playersIterator = players.values();
+    var currentPlayer = playersIterator.next();
+
+    while (!currentPlayer.done) {
+        if (currentPlayer.value.name == response.payload.name) {
+            errorSender(connection, "1", { "name": response.payload.name });
+            return;
+        }
+        currentPlayer = playersIterator.next();
+    }
+
     const playerId = idCreate();
 
     players.set(playerId, {
@@ -15,8 +28,8 @@ module.exports = function newPlayer(connection, response) {
         "newPlayer",
         { "id": playerId });
 
-    const playersIterator = players.values();
-    var currentPlayer = playersIterator.next();
+    playersIterator = players.values();
+    currentPlayer = playersIterator.next();
 
     while (!currentPlayer.done) {
         normalSender(currentPlayer.value.connection,

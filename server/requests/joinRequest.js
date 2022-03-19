@@ -27,7 +27,7 @@ module.exports = function joinMatch(connection, response) {
     }
 
     if (!matches.has(response.payload.gameId)) {
-        console.warn("No match with id " + response.payload.id + ".");
+        console.warn("No match with id " + response.payload.gameId + ".");
         errorSender(connection,
             "4",
             { "gameId": response.payload.gameId });
