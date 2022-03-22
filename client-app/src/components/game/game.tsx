@@ -41,8 +41,13 @@ class Game extends React.Component<GameProps, GameStates> {
   componentDidMount() {
     this.props.messageHandler.receiver.onMessages.set(MessageType.move,
       (payload: MoveResponsePayLoad) => {
-        this.setState({
-          gameStates: payload.gameStates
+        console.log(payload)
+        payload.gameStates.forEach(gameState => {
+          setTimeout(() => {
+            this.setState({
+              buttons: gameState.gameState.buttons
+            })
+          }, 300)
         });
       }
     );
@@ -52,6 +57,14 @@ class Game extends React.Component<GameProps, GameStates> {
   componentDidUpdate() {
     // Drawing on state change
     this.draw();
+  }
+
+  move() {
+    this.props.messageHandler.sender.sendMoveRequest(
+      this.props.player.id, this.props.gameId,
+      {button: { color: "blue", id: "2" },
+      direction: [100, 100]}
+    )
   }
 
   leaveGame() {
@@ -104,6 +117,9 @@ class Game extends React.Component<GameProps, GameStates> {
             </div>
           </div>
           <div className={'gameLeaveButtonContainer'}>
+          <BS.Button variant="primary" onClick={() => this.move()}>
+                  move
+            </BS.Button>
             <BS.Button variant="danger" onClick={() => this.leaveGame()}>
                   Leave game
             </BS.Button>
