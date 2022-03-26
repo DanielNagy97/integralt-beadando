@@ -3,11 +3,12 @@ import * as BS from 'react-bootstrap';
 import './game.css'
 import { Player } from '../../models/player';
 import { Pages } from '../../enums/pages';
+import { GameTypes } from '../../enums/game-types';
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
 import { JoinResponsePayload, MoveResponsePayLoad } from '../../scripts/connectionHandler/models/responses/payloads';
 import { MessageType } from '../../scripts/connectionHandler/models/requestType';
 import { GameState } from '../../scripts/connectionHandler/models/custom-types';
-import { GameTypes } from '../../enums/game-types';
+import LoadingSpin from "react-loading-spin";
 
 export interface Button {
   color: string,
@@ -26,6 +27,7 @@ export interface GameProps{
 export interface GameStates{
   buttons: Button[];
   gameStates: Array<GameState>;
+  loadedImageCounter: number;
 }
 
 class Game extends React.Component<GameProps, GameStates> {
@@ -34,7 +36,8 @@ class Game extends React.Component<GameProps, GameStates> {
 
     this.state = {
       buttons: this.props.joinPayload.gameState.buttons,
-      gameStates: []
+      gameStates: [],
+      loadedImageCounter: 0
     }
   }
 
@@ -51,12 +54,14 @@ class Game extends React.Component<GameProps, GameStates> {
         });
       }
     );
-    this.draw()
+    this.preloadImages();
   }
 
   componentDidUpdate() {
     // Drawing on state change
-    this.draw();
+    if (this.state.loadedImageCounter === 3) {
+      this.draw();
+    }
   }
 
   move() {
@@ -72,7 +77,17 @@ class Game extends React.Component<GameProps, GameStates> {
     this.props.onPageChange(Pages.CONNECT);
   }
 
-  //TODO cache images
+//Preloading images and counting how many is loaded. If we get all 3 we will draw the game. Until then a loading spin showed
+  preloadImages = () => {
+    let links = ["blue_ball.png", "red_ball.png", "white_ball.png"]
+
+    links.forEach(link => {
+      var img = new Image()
+      img.onload = () => this.setState({ loadedImageCounter: this.state.loadedImageCounter + 1 })
+      img.src = link
+   });
+}
+
   draw = () => {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d');
@@ -102,6 +117,19 @@ class Game extends React.Component<GameProps, GameStates> {
 
   render() {
     return (
+      <div>
+      { this.state.loadedImageCounter !== 3 &&
+        <div style={{margin: 'auto', padding: '15%', textAlign: 'center'}}>
+            <LoadingSpin 
+              width={'10px'}
+              size={'200px'}
+              primaryColor={'#dc3545'}
+              secondaryColor={'#dbadb1'}
+            />
+        </div>
+      }
+      {
+        this.state.loadedImageCounter === 3 &&
         <div className={'gameComponent'}>
           <div className={'gameNameContainer'}>
             <div className={'gameFirstName'}>
@@ -125,6 +153,8 @@ class Game extends React.Component<GameProps, GameStates> {
             </BS.Button>
           </div>
         </div>
+      }
+      </div>
     );
   }
 }
