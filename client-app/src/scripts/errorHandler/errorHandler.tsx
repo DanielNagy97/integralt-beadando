@@ -25,6 +25,46 @@ export class ErrorHandler {
         }
         break;
 
+      case Errorcode.idNotExists:
+        errorMessageObject = {
+          message: "The id: " + payload.errorDetails.id + " not exists!",
+          type: "danger",
+          headerMessage: "Error"
+        }
+        break;
+
+      case Errorcode.idForAnotherMatch:
+        errorMessageObject = {
+          message: "The gameId: " + payload.errorDetails.gameId + " is for an another match!",
+          type: "danger",
+          headerMessage: "Error"
+        }
+        break;
+
+      case Errorcode.noSuchMatch:
+        errorMessageObject = {
+          message: "There is no match with the id: " + payload.errorDetails.gameId + "!",
+          type: "danger",
+          headerMessage: "Error"
+        }
+        break;
+
+      case Errorcode.wrongGameType:
+        errorMessageObject = {
+          message: "There selected gametype: " + payload.errorDetails.gameType + " is wrong!",
+          type: "danger",
+          headerMessage: "Error"
+        }
+        break;
+
+      case Errorcode.onePlayerLeft:
+        errorMessageObject = {
+          message: "One player left from the game: " + payload.errorDetails.gameId + "!",
+          type: "danger",
+          headerMessage: "Error"
+        }
+        break;
+
       default:
         errorMessageObject = {
           message: "Unknown error: " + payload.errorId,

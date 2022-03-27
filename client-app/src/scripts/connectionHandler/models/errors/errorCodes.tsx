@@ -4,5 +4,6 @@ export enum Errorcode {
   idNotExists = "2",
   idForAnotherMatch = "3",
   noSuchMatch = "4",
-  wrongGameType = "5"
+  wrongGameType = "5",
+  onePlayerLeft = "6"
 }
