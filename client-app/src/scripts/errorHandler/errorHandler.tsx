@@ -16,7 +16,7 @@ export class ErrorHandler {
       headerMessage: ''
     }
 
-    switch (payload.errorCode) {
+    switch (payload.errorId) {
       case Errorcode.nameExists:
         errorMessageObject = {
           message: "The name: " + payload.errorDetails.name + " already exists!",
@@ -27,7 +27,7 @@ export class ErrorHandler {
 
       default:
         errorMessageObject = {
-          message: "Unknown error: " + payload.errorCode,
+          message: "Unknown error: " + payload.errorId,
           type: "warning",
           headerMessage: "Unknown Error"
         }
