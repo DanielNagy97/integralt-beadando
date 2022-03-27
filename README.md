@@ -92,7 +92,7 @@ buttons: [
 Ahol a `white` színű button a labda.
 
 ### Méretek:
-- **pálya**: 1000px $\times$ 500px
+- **pálya**: 1000px x 500px
 - **button átmérő**: 20px
 - **labda átmérő**: 10px
 
@@ -162,7 +162,7 @@ Példa egy error üzenetre:
 {
     "type": "error",
     "payload": {
-        "errorCode": "1",
+        "errorId": "1",
         "errorDetails": {
             "name": "test"
         }
@@ -172,7 +172,7 @@ Példa egy error üzenetre:
 Az error üzenetek `type` típusa minden esetben `"error"`,
 a `payload` pedig error üzenetek esetében egy olyan objektum, amelyben az `errorCode` mezőben van jelezve az error kódja, az `errorDetails` mező pedig egyedi objektumokat tartalmaz az error indoklására.
 
-| errorCode | errorDetails          | Leírás                                   |
+| errorId   | errorDetails          | Leírás                                   |
 | :-------: | --------------------- | ---------------------------------------- |
 | `"1"`     | `{"name": "test"}`    | _Név már létezik_                        |
 | `"2"`     | `{"id": "-1"}`        | _A küldött id nem létezik_               |
