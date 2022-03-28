@@ -41,19 +41,32 @@ class Game extends React.Component<GameProps, GameStates> {
     }
   }
 
+  setButtonsForFrame(newButtons: Button[]) {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        this.setState({
+          buttons: newButtons
+        })
+        resolve("anything");
+      }, 300);
+    });
+  }
+
   componentDidMount() {
     this.props.messageHandler.receiver.onMessages.set(MessageType.move,
       (payload: MoveResponsePayLoad) => {
-        console.log(payload)
+        //console.log(payload)
+        let framePromises: Promise<any>[] = [];
         payload.gameStates.forEach(gameState => {
-          setTimeout(() => {
-            this.setState({
-              buttons: gameState.gameState.buttons
-            })
-          }, 300)
-        });
-      }
-    );
+          framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons))
+        })
+
+        Promise.all(framePromises).then(()=>{
+          // All frames were drawn, requesting a new move
+          // Note: This will go on forever!
+          this.move();
+        })
+      });
     this.preloadImages();
   }
 
