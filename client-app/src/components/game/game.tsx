@@ -48,14 +48,14 @@ class Game extends React.Component<GameProps, GameStates> {
           buttons: newButtons
         })
         resolve("anything");
-      }, 300);
+      }, 10);
     });
   }
 
   componentDidMount() {
     this.props.messageHandler.receiver.onMessages.set(MessageType.move,
       (payload: MoveResponsePayLoad) => {
-        //console.log(payload)
+        console.log(payload)
         let framePromises: Promise<any>[] = [];
         payload.gameStates.forEach(gameState => {
           framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons))
