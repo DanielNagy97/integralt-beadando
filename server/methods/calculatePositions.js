@@ -169,8 +169,8 @@ function fixWallHit(button, ms) {
             case 1:
                 toHit[0] = getRadius(button) - lastButton.pos[0];
                 toHit[1] = (toHit[0] / distance[0]) * distance[1];
-                distance[0] = -1 * (distance[0] - toHit[0]);
-                distance[1] = distance[1] - toHit[1];
+                distance[0] = -1 * (distance[0] + toHit[0]);
+                distance[1] = distance[1] + toHit[1];
                 lastButton.pos[0] = lastButton.pos[0] + toHit[0];
                 lastButton.pos[1] = lastButton.pos[1] + toHit[1];
                 newButton.pos[0] = lastButton.pos[0] + distance[0];
@@ -180,8 +180,8 @@ function fixWallHit(button, ms) {
             case 2:
                 toHit[0] = (getRadius(button) + wallMax[0]) - lastButton.pos[0];
                 toHit[1] = (toHit[0] / distance[0]) * distance[1];
-                distance[0] = -1 * (distance[0] - toHit[0]);
-                distance[1] = distance[1] - toHit[1];
+                distance[0] = -1 * (distance[0] + toHit[0]);
+                distance[1] = distance[1] + toHit[1];
                 lastButton.pos[0] = lastButton.pos[0] + toHit[0];
                 lastButton.pos[1] = lastButton.pos[1] + toHit[1];
                 newButton.pos[0] = lastButton.pos[0] + distance[0];
@@ -191,8 +191,8 @@ function fixWallHit(button, ms) {
             case 3:
                 toHit[1] = getRadius(button) - lastButton.pos[1];
                 toHit[0] = (toHit[1] / distance[1]) * distance[0];
-                distance[1] = -1 * (distance[1] - toHit[1]);
-                distance[0] = distance[0] - toHit[0];
+                distance[1] = -1 * (distance[1] + toHit[1]);
+                distance[0] = distance[0] + toHit[0];
                 lastButton.pos[0] = lastButton.pos[0] + toHit[0];
                 lastButton.pos[1] = lastButton.pos[1] + toHit[1];
                 newButton.pos[0] = lastButton.pos[0] + distance[0];
@@ -202,8 +202,8 @@ function fixWallHit(button, ms) {
             case 4:
                 toHit[1] = (getRadius(button) + wallMax[1]) - lastButton.pos[1];
                 toHit[0] = (toHit[1] / distance[1]) * distance[0];
-                distance[1] = -1 * (distance[1] - toHit[1]);
-                distance[0] = distance[0] - toHit[0];
+                distance[1] = -1 * (distance[1] + toHit[1]);
+                distance[0] = distance[0] + toHit[0];
                 lastButton.pos[0] = lastButton.pos[0] + toHit[0];
                 lastButton.pos[1] = lastButton.pos[1] + toHit[1];
                 newButton.pos[0] = lastButton.pos[0] + distance[0];
