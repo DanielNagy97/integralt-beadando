@@ -16,7 +16,7 @@ export interface Button {
   pos: [number, number]
 }
 
-export interface GameProps{
+export interface GameProps {
   onPageChange: Function;
   player: Player;
   joinPayload: JoinResponsePayload;
@@ -24,14 +24,14 @@ export interface GameProps{
   messageHandler: PlayerSocketMessageHandler;
 }
 
-export interface GameStates{
+export interface GameStates {
   buttons: Button[];
   gameStates: Array<GameState>;
   loadedImageCounter: number;
 }
 
 class Game extends React.Component<GameProps, GameStates> {
-  constructor(props: GameProps){
+  constructor(props: GameProps) {
     super(props)
 
     this.state = {
@@ -41,14 +41,14 @@ class Game extends React.Component<GameProps, GameStates> {
     }
   }
 
-  setButtonsForFrame(newButtons: Button[]) {
+  setButtonsForFrame(newButtons: Button[], duration: number) {
     return new Promise((resolve) => {
       setTimeout(() => {
         this.setState({
           buttons: newButtons
         })
         resolve("anything");
-      }, 10);
+      }, duration);
     });
   }
 
@@ -58,10 +58,10 @@ class Game extends React.Component<GameProps, GameStates> {
         console.log(payload)
         let framePromises: Promise<any>[] = [];
         payload.gameStates.forEach(gameState => {
-          framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons))
+          framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons, gameState.timestamp))
         })
 
-        Promise.all(framePromises).then(()=>{
+        Promise.all(framePromises).then(() => {
           // All frames were drawn, requesting a new move
           // Note: This will go on forever!
           this.move();
@@ -80,8 +80,10 @@ class Game extends React.Component<GameProps, GameStates> {
   move() {
     this.props.messageHandler.sender.sendMoveRequest(
       this.props.player.id, this.props.gameId,
-      {button: { color: "blue", id: "2" },
-      direction: [100, 100]}
+      {
+        button: { color: "blue", id: "2" },
+        direction: [100, 100]
+      }
     )
   }
 
@@ -90,7 +92,7 @@ class Game extends React.Component<GameProps, GameStates> {
     this.props.onPageChange(Pages.CONNECT);
   }
 
-//Preloading images and counting how many is loaded. If we get all 3 we will draw the game. Until then a loading spin showed
+  //Preloading images and counting how many is loaded. If we get all 3 we will draw the game. Until then a loading spin showed
   preloadImages = () => {
     let links = ["blue_ball.png", "red_ball.png", "white_ball.png"]
 
@@ -98,13 +100,12 @@ class Game extends React.Component<GameProps, GameStates> {
       var img = new Image()
       img.onload = () => this.setState({ loadedImageCounter: this.state.loadedImageCounter + 1 })
       img.src = link
-   });
-}
+    });
+  }
 
   draw = () => {
     const canvas = document.getElementById('canvas') as HTMLCanvasElement;
     const ctx = canvas.getContext('2d');
-    
     if (ctx !== null) {
       ctx.clearRect(0, 0, canvas.width, canvas.height); // Clearing the canvas
       for (let button of this.state.buttons) {
@@ -121,8 +122,8 @@ class Game extends React.Component<GameProps, GameStates> {
 
         var img = new Image();
         img.src = button.color === "blue" ? 'blue_ball.png' : button.color === "red" ? 'red_ball.png' : 'white_ball.png';
-        ctx.drawImage(img, button.pos[0]-radius, button.pos[1]-radius)
-        
+        ctx.drawImage(img, button.pos[0] - radius, button.pos[1] - radius)
+
         ctx.restore();
       }
     }
@@ -131,42 +132,42 @@ class Game extends React.Component<GameProps, GameStates> {
   render() {
     return (
       <div>
-      { this.state.loadedImageCounter !== 3 &&
-        <div style={{margin: 'auto', padding: '15%', textAlign: 'center'}}>
-            <LoadingSpin 
+        {this.state.loadedImageCounter !== 3 &&
+          <div style={{ margin: 'auto', padding: '15%', textAlign: 'center' }}>
+            <LoadingSpin
               width={'10px'}
               size={'200px'}
               primaryColor={'#dc3545'}
               secondaryColor={'#dbadb1'}
             />
-        </div>
-      }
-      {
-        this.state.loadedImageCounter === 3 &&
-        <div className={'gameComponent'}>
-          <div className={'gameNameContainer'}>
-            <div className={'gameFirstName'}>
-              {this.props.player.gameType === GameTypes.AI_VS_AI ? "AI": this.props.player.name}
+          </div>
+        }
+        {
+          this.state.loadedImageCounter === 3 &&
+          <div className={'gameComponent'}>
+            <div className={'gameNameContainer'}>
+              <div className={'gameFirstName'}>
+                {this.props.player.gameType === GameTypes.AI_VS_AI ? "AI" : this.props.player.name}
+              </div>
+              <div className={'gameSecondName'}>
+                {this.props.player.gameType === GameTypes.PLAYER_VS_PLAYER ? "Other player's name" : "AI"}
+              </div>
             </div>
-            <div className={'gameSecondName'}>
-              {this.props.player.gameType === GameTypes.PLAYER_VS_PLAYER ? "Other player's name" : "AI"}
+            <div className={'gameSpace'}>
+              <div style={{ padding: '20px' }}>
+                <canvas id="canvas" width={1000} height={500} />
+              </div>
+            </div>
+            <div className={'gameLeaveButtonContainer'}>
+              <BS.Button variant="primary" onClick={() => this.move()}>
+                move
+              </BS.Button>
+              <BS.Button variant="danger" onClick={() => this.leaveGame()}>
+                Leave game
+              </BS.Button>
             </div>
           </div>
-          <div className={'gameSpace'}>
-            <div style={{padding: '20px'}}>
-              <canvas id="canvas" width={1000} height={500} />
-            </div>
-          </div>
-          <div className={'gameLeaveButtonContainer'}>
-          <BS.Button variant="primary" onClick={() => this.move()}>
-                  move
-            </BS.Button>
-            <BS.Button variant="danger" onClick={() => this.leaveGame()}>
-                  Leave game
-            </BS.Button>
-          </div>
-        </div>
-      }
+        }
       </div>
     );
   }

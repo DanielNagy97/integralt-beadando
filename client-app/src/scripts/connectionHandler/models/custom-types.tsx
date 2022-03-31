@@ -15,5 +15,5 @@ export interface GameState {
   gameState: {
     buttons: Button[]
   },
-  timestamp: Date
+  timestamp: number
 }
