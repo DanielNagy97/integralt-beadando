@@ -2,6 +2,7 @@ const { matches, players } = require("../data/hashmaps");
 const aiMoveGenerator = require("../methods/aiMoveGenerator");
 const calculatePositions = require("../methods/calculatePositions");
 const normalSender = require("../methods/normalSender");
+const errorSender = require("../methods/errorSender");
 
 module.exports = function move(connection, response) {
     if (!players.has(response.payload.id)) {
