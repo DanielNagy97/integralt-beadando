@@ -77,6 +77,7 @@ class App extends React.Component<AppProps, AppStates> {
   onConnectionOpen = () => {
     this.setToastAttributes("The connection to the server is alive" , "success", "Connected to server");
     this.setShowToast(true);
+    this.setPage(Pages.CONNECT);
   }
 
   onConnectionClosed = () => {

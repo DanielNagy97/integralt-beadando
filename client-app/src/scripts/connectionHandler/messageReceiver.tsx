@@ -14,7 +14,12 @@ export class MessageReceiver {
   onMessages: Map<MessageType, Function> = new Map();
   
   constructor() {
+    this.setOnMessageEvents();
+  }
+
+  setOnMessageEvents = () => {
     this.socketConnection.socket.onmessage = message => {
+      console.log(message)
       const response: SocketMessage = JSON.parse(message.data);
 
       const action = this.onMessages.get(response.type);

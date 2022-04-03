@@ -9,6 +9,10 @@ export class PlayerSocketConnection {
     this.socket = new WebSocket("ws://" + window.location.hostname + ":9000");
   }
 
+  connect = () => {
+    this.socket = new WebSocket("ws://" + window.location.hostname + ":9000");
+  }
+
   public static getInstance(): PlayerSocketConnection {
     if (this.instance == null) {
       this.instance = new PlayerSocketConnection();
