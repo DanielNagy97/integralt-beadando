@@ -34,6 +34,13 @@ module.exports = function move(connection, response) {
         return;
     }
 
+    getDistanceBetweenButtons = (button1, button2) => {
+        return Math.sqrt(
+            (button1.pos[0] - button2.pos[0]) * (button1.pos[0] - button2.pos[0]) +
+            (button1.pos[1] - button2.pos[1]) * (button1.pos[1] - button2.pos[1])
+        );
+    }
+
     // TODO: Refactoring!
     doButtonsOverlap = (button1, button2) => {
         return Math.abs((button1.pos[0] - button2.pos[0]) * (button1.pos[0] - button2.pos[0]) + (button1.pos[1] - button2.pos[1]) * (button1.pos[1] - button2.pos[1])) <= ((button1.radius + button2.radius) * (button1.radius + button2.radius))
@@ -44,8 +51,8 @@ module.exports = function move(connection, response) {
         let ellapsedTime = 0.1;
 
         buttons.forEach(button => {
-            button.acc[0] = -button.velocity[0] * 0.8;
-            button.acc[1] = -button.velocity[1] * 0.8;
+            button.acc[0] = -button.velocity[0] * 0.7;
+            button.acc[1] = -button.velocity[1] * 0.7;
 
             button.velocity[0] += button.acc[0] * ellapsedTime;
             button.velocity[1] += button.acc[1] * ellapsedTime;
@@ -89,9 +96,7 @@ module.exports = function move(connection, response) {
                         
                         collidingButtons.push({btn: button, target: targetButton});
 
-                        // Distance between the buttons
-                        let distance = Math.sqrt( (button.pos[0] - targetButton.pos[0]) * (button.pos[0] - targetButton.pos[0]) + (button.pos[1] - targetButton.pos[1]) * (button.pos[1] - targetButton.pos[1]));
-
+                        let distance = getDistanceBetweenButtons(button, targetButton);
                         let overlapSize = 0.5 * (distance - button.radius - targetButton.radius);
 
                         // Displacing buttons from each other
@@ -110,8 +115,7 @@ module.exports = function move(connection, response) {
 
     calcDynamicCollisions = (collidingButtons) => {
         collidingButtons.forEach(coll => {
-            // Distance between balls
-            let distance = Math.sqrt( (coll.btn.pos[0] - coll.target.pos[0]) * (coll.btn.pos[0] - coll.target.pos[0]) + (coll.btn.pos[1] - coll.target.pos[1]) * (coll.btn.pos[1] - coll.target.pos[1]) );
+            let distance = getDistanceBetweenButtons(coll.btn, coll.target);
 
             // Normal
             let nx = (coll.target.pos[0] - coll.btn.pos[0]) / distance;
@@ -142,15 +146,40 @@ module.exports = function move(connection, response) {
         });
     }
 
-    let myMatch = matches.get(response.payload.gameId);
+    calcGoal = (ball) => {
+        let isGoal = false;
+        if(ball.pos[0] - ball.radius <= 0 && (ball.pos[1] > 187 && ball.pos[1] < 313)) {
+            isGoal = true;
+        }
+        else if(ball.pos[0] + ball.radius >= 1000 && (ball.pos[1] > 187 && ball.pos[1] < 313)) {
+            isGoal = true;
+        }
+        return isGoal;
+    }
 
+    let myMatch = matches.get(response.payload.gameId);
 
     gameStates = [];
 
-    let randomIndex = Math.floor(Math.random()*11);
-    let randomVelocityX = Math.ceil(Math.random() * 200 + 80) * (Math.round(Math.random()) ? 1 : -1);
-    let randomVelocityY = Math.ceil(Math.random() * 200 + 80) * (Math.round(Math.random()) ? 1 : -1);
-    myMatch.buttons[randomIndex].velocity = [randomVelocityX, randomVelocityY];
+    let randomIndex = Math.floor(Math.random() * 6);
+    let selectedColor = myMatch.nextMove ? "blue" : "red";
+
+    let selectedButton =  myMatch.buttons.filter(btn => {
+        return btn.id == randomIndex && btn.color == selectedColor;
+    })[0]
+    console.log(selectedButton);
+
+    // Shoot in the direction of the ball
+    let ball = myMatch.buttons[12];
+    let distance = getDistanceBetweenButtons(ball, selectedButton);
+    
+    // Normal
+    let nx = (ball.pos[0] - selectedButton.pos[0]) / distance;
+    let ny = (ball.pos[1] - selectedButton.pos[1]) / distance;
+
+    let randomVelocity = Math.floor(Math.random() * 250 + 150);
+
+    selectedButton.velocity = [nx * randomVelocity, ny * randomVelocity];
 
     let ellapsed = 0;
 
@@ -159,6 +188,11 @@ module.exports = function move(connection, response) {
 
     let isStopped = false;
     while(!isStopped) {
+
+        if(calcGoal(myMatch.buttons[12])) {
+            myMatch.buttons = calculatePositions.getStartingButtonPositions()
+        }
+
         updatePositions(myMatch.buttons);
         let collided = calcStaticCollisions(myMatch.buttons);
         calcDynamicCollisions(collided);
@@ -189,5 +223,4 @@ module.exports = function move(connection, response) {
     else {
         matches.get(response.payload.gameId).nextMove = 0;
     }
-
 }
