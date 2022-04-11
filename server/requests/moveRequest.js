@@ -34,61 +34,155 @@ module.exports = function move(connection, response) {
         return;
     }
 
-    var currentMove;
-    if (matches.get(response.payload.gameId).matchType == "ai-vs-ai") {
-        if (matches.get(response.payload.gameId).nextMove == 0) {
-            currentMove = aiMoveGenerator.nextMove(matches.get(response.payload.gameId).buttons, "red");
-        }
-        else {
-            currentMove = aiMoveGenerator.nextMove(matches.get(response.payload.gameId).buttons, "blue");
-        }
-    }
-    else if (matches.get(response.payload.gameId).matchType == "player-vs-ai") {
-        if (matches.get(response.payload.gameId).nextMove == 0) {
-            currentMove = response.payload.moveAction;
-        }
-        else {
-            currentMove = aiMoveGenerator.nextMove(matches.get(response.payload.gameId).buttons, "blue");
-        }
-    }
-    else if (matches.get(response.payload.gameId).matchType == "player-vs-player") {
-        //TODO
-        return;
+    // TODO: Refactoring!
+    doButtonsOverlap = (button1, button2) => {
+        return Math.abs((button1.pos[0] - button2.pos[0]) * (button1.pos[0] - button2.pos[0]) + (button1.pos[1] - button2.pos[1]) * (button1.pos[1] - button2.pos[1])) <= ((button1.radius + button2.radius) * (button1.radius + button2.radius))
     }
 
-    var currentState = [];
-    var timeSpent = 0;
-    var gameStates = [];
-    var nextState;
-    matches.get(response.payload.gameId).buttons.forEach(element => {
-        if (element.color == currentMove.button.color && element.id == currentMove.button.id) {
-            currentState.push(
-                {
-                    color: currentMove.button.color,
-                    id: currentMove.button.id,
-                    pos: element.pos,
-                    speed: currentMove.direction
+    updatePositions = (buttons) => {
+        // TODO: Tune these values a little
+        let ellapsedTime = 0.1;
+
+        buttons.forEach(button => {
+            button.acc[0] = -button.velocity[0] * 0.8;
+            button.acc[1] = -button.velocity[1] * 0.8;
+
+            button.velocity[0] += button.acc[0] * ellapsedTime;
+            button.velocity[1] += button.acc[1] * ellapsedTime;
+            button.pos[0] += button.velocity[0] * ellapsedTime;
+            button.pos[1] += button.velocity[1] * ellapsedTime;
+
+            // Wall hit
+			if (button.pos[0] - button.radius < 0) {
+                button.pos[0] = 0 + button.radius;
+                button.velocity[0] = -button.velocity[0];
+            }
+			if (button.pos[0] + button.radius >= 1000) {
+                button.pos[0] = 1000 - button.radius;
+                button.velocity[0] = -button.velocity[0];
+            }
+			if (button.pos[1] - button.radius < 0) {
+                button.pos[1] = 0 + button.radius;
+                button.velocity[1] = -button.velocity[1];
+            }
+			if (button.pos[1] + button.radius >= 500) {
+                button.pos[1] = 500 - button.radius;
+                button.velocity[1] = -button.velocity[1];
+            }
+
+            // Stopping the button when it's velocity is close to zero
+            if (Math.abs(button.velocity[0] * button.velocity[0] + button.velocity[1] * button.velocity[1]) < 0.01) {
+                button.velocity[0] = 0;
+                button.velocity[1] = 0;
+            }
+        });
+    }
+
+
+    calcStaticCollisions = (buttons) => {
+        let collidingButtons = [];
+        
+        buttons.forEach(button => {
+            buttons.forEach(targetButton => {
+                if(!(button.id == targetButton.id && button.color == targetButton.color)) {
+                    if(doButtonsOverlap(button, targetButton)) {
+                        
+                        collidingButtons.push({btn: button, target: targetButton});
+
+                        // Distance between the buttons
+                        let distance = Math.sqrt( (button.pos[0] - targetButton.pos[0]) * (button.pos[0] - targetButton.pos[0]) + (button.pos[1] - targetButton.pos[1]) * (button.pos[1] - targetButton.pos[1]));
+
+                        let overlapSize = 0.5 * (distance - button.radius - targetButton.radius);
+
+                        // Displacing buttons from each other
+                        button.pos[0] -= overlapSize * (button.pos[0] - targetButton.pos[0]) / distance;
+                        button.pos[1] -= overlapSize * (button.pos[1] - targetButton.pos[1]) / distance;
+
+                        targetButton.pos[0] += overlapSize * (button.pos[0] - targetButton.pos[0]) / distance;
+                        targetButton.pos[1] += overlapSize * (button.pos[1] - targetButton.pos[1]) / distance;
+                    }
                 }
-            )
-        }
-        else {
-            currentState.push(element);
-        }
-    });
+            });
+        });
 
-    gameStates.push({"gameState" : {"buttons" : currentState}, "timestamp" : timeSpent});
+        return collidingButtons;
+    }
 
-    while (calculatePositions.allIsStopped(currentState).length != 0) {
-        nextState = calculatePositions.findAndFixClosestWallHit(currentState);
-        currentState = nextState.newButtons;
-        timeSpent += nextState.realms;
-        gameStates.push({ "gameState": { "buttons": calculatePositions.removeSpeed(currentState) }, "timestamp": timeSpent });
+    calcDynamicCollisions = (collidingButtons) => {
+        collidingButtons.forEach(coll => {
+            // Distance between balls
+            let distance = Math.sqrt( (coll.btn.pos[0] - coll.target.pos[0]) * (coll.btn.pos[0] - coll.target.pos[0]) + (coll.btn.pos[1] - coll.target.pos[1]) * (coll.btn.pos[1] - coll.target.pos[1]) );
+
+            // Normal
+            let nx = (coll.target.pos[0] - coll.btn.pos[0]) / distance;
+            let ny = (coll.target.pos[1] - coll.btn.pos[1]) / distance;
+
+            // Tangent
+            let tx = -ny;
+            let ty = nx;
+
+            // Dot product tangent
+            let dpTan1 = coll.btn.velocity[0] * tx + coll.btn.velocity[1] * ty;
+            let dpTan2 = coll.target.velocity[0] * tx + coll.target.velocity[1] * ty;
+
+            // Dot product normal
+            let dpNorm1 = coll.btn.velocity[0] * nx + coll.btn.velocity[1] * ny;
+            let dpNorm2 = coll.target.velocity[0] * nx + coll.target.velocity[1] * ny;
+
+            // Conservation of momentum in 1D
+            let m1 = (dpNorm1 * (coll.btn.mass - coll.target.mass) + 2.0 * coll.target.mass * dpNorm2) / (coll.btn.mass + coll.target.mass);
+            let m2 = (dpNorm2 * (coll.target.mass - coll.btn.mass) + 2.0 * coll.btn.mass * dpNorm1) / (coll.btn.mass + coll.target.mass);
+
+            // Update button velocities
+            coll.btn.velocity[0] = tx * dpTan1 + nx * m1;
+            coll.btn.velocity[1] = ty * dpTan1 + ny * m1;
+
+            coll.target.velocity[0] = tx * dpTan2 + nx * m2;
+            coll.target.velocity[1] = ty * dpTan2 + ny * m2;
+        });
+    }
+
+    let myMatch = matches.get(response.payload.gameId);
+
+
+    gameStates = [];
+
+    let randomIndex = Math.floor(Math.random()*11);
+    let randomVelocityX = Math.ceil(Math.random() * 200 + 80) * (Math.round(Math.random()) ? 1 : -1);
+    let randomVelocityY = Math.ceil(Math.random() * 200 + 80) * (Math.round(Math.random()) ? 1 : -1);
+    myMatch.buttons[randomIndex].velocity = [randomVelocityX, randomVelocityY];
+
+    let ellapsed = 0;
+
+    // Deep copy with json stringify and parse
+    gameStates.push({"gameState" : {"buttons" : JSON.parse(JSON.stringify(myMatch.buttons))}, "timestamp" : ellapsed});
+
+    let isStopped = false;
+    while(!isStopped) {
+        updatePositions(myMatch.buttons);
+        let collided = calcStaticCollisions(myMatch.buttons);
+        calcDynamicCollisions(collided);
+        
+        ellapsed += 10;
+        gameStates.push({"gameState" : {"buttons" : JSON.parse(JSON.stringify(myMatch.buttons))}, "timestamp" : ellapsed});
+
+
+        let stopCount = 0
+        myMatch.buttons.forEach(button => {
+            if(button.velocity[0] == 0 && button.velocity[1] == 0) {
+                stopCount++;
+            }
+        });
+        if(stopCount == myMatch.buttons.length){
+            isStopped = true;
+        }
     }
 
     matches.get(response.payload.gameId).players.forEach(element => {
         normalSender(players.get(element).connection, "move", { "gameStates": gameStates });
     });
 
+    // TODO: Generate movement according to next move
     if (matches.get(response.payload.gameId).nextMove == 0) {
         matches.get(response.payload.gameId).nextMove = 1;
     }

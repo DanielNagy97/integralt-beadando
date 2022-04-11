@@ -69,19 +69,19 @@ function allIsCollidedWithButtons(buttons) {
 
 function getStartingButtonPositions() {
     return [
-        { color: "red", id: "0", pos: [70, 250], speed: [0, 0] },
-        { color: "red", id: "1", pos: [250, 160], speed: [0, 0] },
-        { color: "red", id: "2", pos: [250, 340], speed: [0, 0] },
-        { color: "red", id: "3", pos: [430, 70], speed: [0, 0] },
-        { color: "red", id: "4", pos: [430, 250], speed: [0, 0] },
-        { color: "red", id: "5", pos: [430, 430], speed: [0, 0] },
-        { color: "blue", id: "0", pos: [930, 250], speed: [0, 0] },
-        { color: "blue", id: "1", pos: [750, 160], speed: [0, 0] },
-        { color: "blue", id: "2", pos: [750, 340], speed: [0, 0] },
-        { color: "blue", id: "3", pos: [570, 70], speed: [0, 0] },
-        { color: "blue", id: "4", pos: [570, 250], speed: [0, 0] },
-        { color: "blue", id: "5", pos: [570, 430], speed: [0, 0] },
-        { color: "white", id: "-1", pos: [500, 250], speed: [0, 0] }
+        { color: "red",   id: "0",  pos: [70, 250],  velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red",   id: "1",  pos: [250, 160], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red",   id: "2",  pos: [250, 340], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red",   id: "3",  pos: [430, 70],  velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red",   id: "4",  pos: [430, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red",   id: "5",  pos: [430, 430], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue",  id: "0",  pos: [930, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue",  id: "1",  pos: [750, 160], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue",  id: "2",  pos: [750, 340], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue",  id: "3",  pos: [570, 70],  velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue",  id: "4",  pos: [570, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue",  id: "5",  pos: [570, 430], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "white", id: "-1", pos: [500, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 50.0,  radius: 10 }
     ];
 }
 
