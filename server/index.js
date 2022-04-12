@@ -11,7 +11,7 @@ const calculatePositions = require("./methods/calculatePositions");
 const moveRequest = require("./requests/moveRequest");
 
 app.use(cors());
-app.listen(3001, () => console.log("Listening Express on port 3000"));
+app.listen(3001, () => console.log("Listening Express on port 3001"));
 
 const httpServer = http.createServer();
 httpServer.listen(9000, () => console.log("Listening Websocket on port 9000"));
