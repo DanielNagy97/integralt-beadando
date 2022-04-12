@@ -5,7 +5,7 @@ import { Player } from '../../models/player';
 import { Pages } from '../../enums/pages';
 import { GameTypes } from '../../enums/game-types';
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
-import { JoinResponsePayload, MoveResponsePayLoad } from '../../scripts/connectionHandler/models/responses/payloads';
+import { EndGameResponsePayLoad, JoinResponsePayload, MoveResponsePayLoad } from '../../scripts/connectionHandler/models/responses/payloads';
 import { MessageType } from '../../scripts/connectionHandler/models/requestType';
 import { GameState } from '../../scripts/connectionHandler/models/custom-types';
 import LoadingSpin from "react-loading-spin";
@@ -55,7 +55,6 @@ class Game extends React.Component<GameProps, GameStates> {
   componentDidMount() {
     this.props.messageHandler.receiver.onMessages.set(MessageType.move,
       (payload: MoveResponsePayLoad) => {
-        console.log(payload)
         let framePromises: Promise<any>[] = [];
         payload.gameStates.forEach(gameState => {
           framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons, gameState.timestamp))
@@ -63,10 +62,20 @@ class Game extends React.Component<GameProps, GameStates> {
 
         Promise.all(framePromises).then(() => {
           // All frames were drawn, requesting a new move
-          // Note: This will go on forever!
+          // Note: This will go on until thee is a move answer from the server!
           this.move();
-        })
-      });
+        });
+      }
+    );
+    // Sending an endGame message to the server:
+    // this.props.messageHandler.sender.sendEndGameRequest(this.props.player.id, this.props.gameId);
+    // The final message from the server (The response of the endGame)
+    this.props.messageHandler.receiver.onMessages.set(MessageType.endGame,
+      (payload: EndGameResponsePayLoad) => {
+        console.log(payload.finalScore);
+      }
+    );
+    
     this.preloadImages();
   }
 

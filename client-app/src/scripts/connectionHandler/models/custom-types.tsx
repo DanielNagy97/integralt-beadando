@@ -1,7 +1,7 @@
 
 
 export interface Button {
-  color: "red",
+  color: string,
   id: string,
   pos: [number, number]
 }
@@ -16,4 +16,9 @@ export interface GameState {
     buttons: Button[]
   },
   timestamp: number
+}
+
+export interface Score {
+  red: number,
+  blue: number
 }

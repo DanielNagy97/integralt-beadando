@@ -1,5 +1,5 @@
 import { GameTypes } from "../../../../enums/game-types"
-import { Button, GameState } from "../custom-types"
+import { Button, GameState, Score } from "../custom-types"
 
 
 export interface NewPlayerResponsePayload {
@@ -23,5 +23,12 @@ export interface JoinResponsePayload {
 
 export interface MoveResponsePayLoad {
   playerId: string,
-  gameStates: Array<GameState>
+  gameStates: Array<GameState>,
+  score: Score
+}
+
+export interface EndGameResponsePayLoad {
+  id: number,
+  gameId: number,
+  finalScore: Score
 }

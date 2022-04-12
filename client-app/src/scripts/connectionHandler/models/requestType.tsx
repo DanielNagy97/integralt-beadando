@@ -6,5 +6,6 @@ export enum MessageType {
   create = "create",
   join = "join",
   move = "move",
-  error = "error"
+  error = "error",
+  endGame = "endGame"
 }

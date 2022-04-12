@@ -1,6 +1,6 @@
 import { MessageType } from "../requestType";
 import { SocketMessage } from "../socketMessage";
-import { CreateResponsePayload, JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from "./payloads";
+import { CreateResponsePayload, EndGameResponsePayLoad, JoinResponsePayload, MoveResponsePayLoad, NewPlayerResponsePayload, PlayerListResponsePayload } from "./payloads";
 
 
 export interface newPlayerResponse extends SocketMessage {
@@ -26,4 +26,9 @@ export interface JoinResponse extends SocketMessage {
 export interface MoveResponse extends SocketMessage {
   type: MessageType.move,
   payload: MoveResponsePayLoad
+}
+
+export interface EndGameResponse extends SocketMessage {
+  type: MessageType.endGame,
+  payload: EndGameResponsePayLoad
 }

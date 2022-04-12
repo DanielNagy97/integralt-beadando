@@ -29,3 +29,8 @@ export interface MoveRequestPayLoad {
   gameId: string,
   moveAction: MoveAction
 }
+
+export interface EndGameRequestPayLoad {
+  id: string,
+  gameId: string
+}

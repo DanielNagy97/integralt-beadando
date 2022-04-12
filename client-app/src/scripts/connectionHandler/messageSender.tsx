@@ -1,6 +1,6 @@
 import { GameTypes } from "../../enums/game-types";
 import { MoveAction } from "./models/custom-types";
-import { CreateRequest, JoinRequest, LeavingRequest, MoveRequest, NewPlayerRequest, PlayerListRequest } from "./models/requests/requests";
+import { CreateRequest, EndGameRequest, JoinRequest, LeavingRequest, MoveRequest, NewPlayerRequest, PlayerListRequest } from "./models/requests/requests";
 import { MessageType } from "./models/requestType";
 import { PlayerSocketConnection } from "./socketConnection";
 
@@ -72,7 +72,18 @@ export class MessageSender {
         gameId: gameId,
         moveAction: moveAction
       }
-    }
+    };
+    this.socketConnection.send(message);
+  }
+
+  sendEndGameRequest(id: string, gameId: string) {
+    const message: EndGameRequest = {
+      type: MessageType.endGame,
+      payload: {
+        id: id,
+        gameId: gameId
+      }
+    };
     this.socketConnection.send(message);
   }
 }
