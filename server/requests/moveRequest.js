@@ -167,7 +167,6 @@ module.exports = function move(connection, response) {
     let selectedButton =  myMatch.buttons.filter(btn => {
         return btn.id == randomIndex && btn.color == selectedColor;
     })[0]
-    console.log(selectedButton);
 
     // Shoot in the direction of the ball
     let ball = myMatch.buttons[12];
