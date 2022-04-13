@@ -28,6 +28,10 @@ export interface GameStates {
   buttons: Button[];
   gameStates: Array<GameState>;
   loadedImageCounter: number;
+  score: {
+    red: number,
+    blue: number
+  }
 }
 
 class Game extends React.Component<GameProps, GameStates> {
@@ -37,7 +41,8 @@ class Game extends React.Component<GameProps, GameStates> {
     this.state = {
       buttons: this.props.joinPayload.gameState.buttons,
       gameStates: [],
-      loadedImageCounter: 0
+      loadedImageCounter: 0,
+      score: {red: 0, blue: 0}
     }
   }
 
@@ -56,6 +61,9 @@ class Game extends React.Component<GameProps, GameStates> {
     this.props.messageHandler.receiver.onMessages.set(MessageType.move,
       (payload: MoveResponsePayLoad) => {
         let framePromises: Promise<any>[] = [];
+        this.setState({
+          score: payload.score
+        });
         payload.gameStates.forEach(gameState => {
           framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons, gameState.timestamp))
         })
@@ -156,10 +164,10 @@ class Game extends React.Component<GameProps, GameStates> {
           <div className={'gameComponent'}>
             <div className={'gameNameContainer'}>
               <div className={'gameFirstName'}>
-                {this.props.player.gameType === GameTypes.AI_VS_AI ? "AI" : this.props.player.name}
+                {this.props.player.gameType === GameTypes.AI_VS_AI ? "AI" : this.props.player.name} {this.state.score.red}
               </div>
               <div className={'gameSecondName'}>
-                {this.props.player.gameType === GameTypes.PLAYER_VS_PLAYER ? "Other player's name" : "AI"}
+                {this.props.player.gameType === GameTypes.PLAYER_VS_PLAYER ? "Other player's name" : "AI"} {this.state.score.blue}
               </div>
             </div>
             <div className={'gameSpace'}>
