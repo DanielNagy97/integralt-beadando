@@ -78,6 +78,7 @@ module.exports = function move(connection, response) {
         if (goal != "none") {
             myMatch.buttons = calculatePositions.getStartingButtonPositions();
             goal == "red" ? myMatch.points[0]++ : myMatch.points[1]++;
+            ellapsedTime += updateTime * 100;
             // Sending the goal frame and the starting position frame to the client!
         }
 
