@@ -1,263 +1,158 @@
-const wallMax = [1000, 500];
-const normalButtonRadius = 20;
-const ballRadius = 10;
-const slowing = 0.5;
-const speedThreshold = 10;
-const maxTime = 10;
-const minTime = 1;
 
-function vectorLength(speed) {
-    return Math.sqrt(Math.pow(speed[0], 2) + Math.pow(speed[1], 2));
-}
-
-function distanceVectorOfPoints(pos1, pos2) {
-    return [Math.abs(pos1[0] - pos2[0]), Math.abs(pos1[1] - pos2[1])];
-}
-
-function getRadius(button) {
-    return button.id == -1 ? ballRadius : normalButtonRadius;
-}
-
-function isCollidedWithWalls(button) {
-    var buttonRadius = getRadius(button);
-    var returnState = 0;
-    if (button.pos[0] < buttonRadius) {
-        returnState = 1;
-    }
-    else if (button.pos[0] > (wallMax[0] - buttonRadius)) {
-        returnState = 2;
-    }
-    else if (button.pos[1] < buttonRadius) {
-        returnState = 3;
-    }
-    else if (button.pos[1] > (wallMax[1] - buttonRadius)) {
-        returnState = 4;
-    }
-    return returnState;
-}
-
-function allIsCollidedWithWalls(buttons) {
-    var isCollided = [];
-    for (let i = 0; i < buttons.length; i++) {
-        if (isCollidedWithWalls(buttons[i]) != 0) {
-            isCollided.push(i);
-        }
-    }
-    return isCollided;
-}
-
-function isCollidedWithButtons(button1, button2) {
-    var minDistance = 2 * normalButtonRadius;
-    if (button1.id == -1 || button2.id == -1) {
-        minDistance = normalButtonRadius + ballRadius;
-    }
-
-    return vectorLength(distanceVectorOfPoints(button1.pos, button2.pos)) <= minDistance;
-}
-
-function allIsCollidedWithButtons(buttons) {
-    var isCollided = [];
-    for (let i = 0; i < buttons.length; i++) {
-        for (let j = i + 1; j < buttons.length; j++) {
-            if (isCollidedWithButtons(buttons[i], buttons[j])) {
-                isCollided.push([i, j]);
-            }
-        }
-    }
-    return isCollided;
-}
-
-function getStartingButtonPositions() {
+getStartingButtonPositions = () => {
     return [
-        { color: "red",   id: "0",  pos: [70, 250],  velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "red",   id: "1",  pos: [250, 160], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "red",   id: "2",  pos: [250, 340], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "red",   id: "3",  pos: [430, 70],  velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "red",   id: "4",  pos: [430, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "red",   id: "5",  pos: [430, 430], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "blue",  id: "0",  pos: [930, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "blue",  id: "1",  pos: [750, 160], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "blue",  id: "2",  pos: [750, 340], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "blue",  id: "3",  pos: [570, 70],  velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "blue",  id: "4",  pos: [570, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "blue",  id: "5",  pos: [570, 430], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
-        { color: "white", id: "-1", pos: [500, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 50.0,  radius: 10 }
+        { color: "red", id: "0", pos: [70, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red", id: "1", pos: [250, 160], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red", id: "2", pos: [250, 340], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red", id: "3", pos: [430, 70], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red", id: "4", pos: [430, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "red", id: "5", pos: [430, 430], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue", id: "0", pos: [930, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue", id: "1", pos: [750, 160], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue", id: "2", pos: [750, 340], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue", id: "3", pos: [570, 70], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue", id: "4", pos: [570, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "blue", id: "5", pos: [570, 430], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 100.0, radius: 20 },
+        { color: "white", id: "-1", pos: [500, 250], velocity: [0.0, 0.0], acc: [0.0, 0.0], mass: 50.0, radius: 10 }
     ];
 }
 
-function removeSpeed(buttons) {
-    var staticButtons = [];
-    for (let i = 0; i < buttons.length; i++) {
-        staticButtons.push({ "color": buttons[i].color, "id": buttons[i].id, "pos": buttons[i].pos });
-    }
-    return staticButtons;
+findButton = (buttons, id, color) => {
+    return buttons.filter(btn => {
+        return btn.id == id && btn.color == color;
+    })[0];
 }
 
-function slowSpeed(speed, ms) {
-    var newSpeed = [0, 0];
-    if (speed[0] > 0) {
-        newSpeed[0] = speed[0] - (slowing * ms);
-    }
-    else if (speed[0] < 0) {
-        newSpeed[0] = speed[0] + (slowing * ms);
-    }
-    if (newSpeed[0] < speedThreshold && newSpeed[0] > - speedThreshold) {
-        newSpeed[0] = 0;
-    }
-    if (speed[0] > 0) {
-        newSpeed[1] = speed[1] - (slowing * ms);
-    }
-    else if (speed[0] < 0) {
-        newSpeed[1] = speed[1] + (slowing * ms);
-    }
-    if (newSpeed[1] < speedThreshold && newSpeed[1] > - speedThreshold) {
-        newSpeed[1] = 0;
-    }
-    return newSpeed;
+getDistanceBetweenButtons = (button1, button2) => {
+    return Math.sqrt(
+        (button1.pos[0] - button2.pos[0]) * (button1.pos[0] - button2.pos[0]) +
+        (button1.pos[1] - button2.pos[1]) * (button1.pos[1] - button2.pos[1])
+    );
 }
 
-function movedDistance(speed, ms) {
-    var distance = [0, 0];
-    distance[0] = ((speed[0] / 1000) * ms);
-    distance[1] = ((speed[1] / 1000) * ms);
-    return distance;
+doButtonsOverlap = (button1, button2) => {
+    return Math.abs(
+        (button1.pos[0] - button2.pos[0]) * (button1.pos[0] - button2.pos[0]) +
+        (button1.pos[1] - button2.pos[1]) * (button1.pos[1] - button2.pos[1])) <= ((button1.radius + button2.radius) * (button1.radius + button2.radius))
 }
 
-function newPosition(pos, speed, ms) {
-    var newPos = [0, 0];
-    var distance = movedDistance(speed, ms);
-    newPos[0] = pos[0] + distance[0];
-    newPos[1] = pos[1] + distance[1];
-    return newPos;
-}
-
-function moveButtonForwardInTime(button, ms) {
-    return {
-        "color": button.color,
-        "id": button.id,
-        "pos": newPosition(button.pos, button.speed, ms),
-        "speed": slowSpeed(button.speed, ms)
+checkWalls = (button) => {
+    if (button.pos[0] - button.radius < 0) {
+        button.pos[0] = 0 + button.radius;
+        button.velocity[0] = -button.velocity[0];
+    }
+    if (button.pos[0] + button.radius >= 1000) {
+        button.pos[0] = 1000 - button.radius;
+        button.velocity[0] = -button.velocity[0];
+    }
+    if (button.pos[1] - button.radius < 0) {
+        button.pos[1] = 0 + button.radius;
+        button.velocity[1] = -button.velocity[1];
+    }
+    if (button.pos[1] + button.radius >= 500) {
+        button.pos[1] = 500 - button.radius;
+        button.velocity[1] = -button.velocity[1];
     }
 }
 
-function jumpForwardInTime(buttons, ms) {
-    var newButtons = [];
-    for (let i = 0; i < buttons.length; i++) {
-        newButtons.push(moveButtonForwardInTime(buttons[i], ms));
-    }
-    return newButtons;
-}
+updatePositions = (buttons, updateTime) => {
+    // TODO: Tune these values a little
+    let ellapsedTime = updateTime * 0.01;
 
-function allIsStopped(buttons) {
-    var isStopped = [];
-    for (let i = 0; i < buttons.length; i++) {
-        if (buttons[i].speed[0] != 0 || buttons[i].speed[1] != 0) {
-            isStopped.push(i);
+    buttons.forEach(button => {
+        button.acc[0] = -button.velocity[0] * 0.7;
+        button.acc[1] = -button.velocity[1] * 0.7;
+
+        button.velocity[0] += button.acc[0] * ellapsedTime;
+        button.velocity[1] += button.acc[1] * ellapsedTime;
+        button.pos[0] += button.velocity[0] * ellapsedTime;
+        button.pos[1] += button.velocity[1] * ellapsedTime;
+
+        checkWalls(button);
+
+        // Stopping the button when it's velocity is close to zero
+        if (Math.abs(button.velocity[0] * button.velocity[0] + button.velocity[1] * button.velocity[1]) < 0.01) {
+            button.velocity[0] = 0;
+            button.velocity[1] = 0;
         }
-    }
-    return isStopped;
+    });
 }
 
-function fixWallHit(button, ms) {
-    var lastButton = button;
-    var newButton = moveButtonForwardInTime(lastButton, ms);
-    var distance = movedDistance(lastButton.speed, ms);
-    var toHit = [0, 0];
-    var wallHit = isCollidedWithWalls(newButton);
-    while (wallHit != 0) {
-        switch (wallHit) {
-            case 1:
-                toHit[0] = getRadius(button) - lastButton.pos[0];
-                toHit[1] = (toHit[0] / distance[0]) * distance[1];
-                distance[0] = -1 * (distance[0] + toHit[0]);
-                distance[1] = distance[1] + toHit[1];
-                lastButton.pos[0] = lastButton.pos[0] + toHit[0];
-                lastButton.pos[1] = lastButton.pos[1] + toHit[1];
-                newButton.pos[0] = lastButton.pos[0] + distance[0];
-                newButton.pos[1] = lastButton.pos[1] + distance[1];
-                newButton.speed[0] = -1 * newButton.speed[0];
-                break;
-            case 2:
-                toHit[0] = (getRadius(button) + wallMax[0]) - lastButton.pos[0];
-                toHit[1] = (toHit[0] / distance[0]) * distance[1];
-                distance[0] = -1 * (distance[0] + toHit[0]);
-                distance[1] = distance[1] + toHit[1];
-                lastButton.pos[0] = lastButton.pos[0] + toHit[0];
-                lastButton.pos[1] = lastButton.pos[1] + toHit[1];
-                newButton.pos[0] = lastButton.pos[0] + distance[0];
-                newButton.pos[1] = lastButton.pos[1] + distance[1];
-                newButton.speed[0] = -1 * newButton.speed[0];
-                break;
-            case 3:
-                toHit[1] = getRadius(button) - lastButton.pos[1];
-                toHit[0] = (toHit[1] / distance[1]) * distance[0];
-                distance[1] = -1 * (distance[1] + toHit[1]);
-                distance[0] = distance[0] + toHit[0];
-                lastButton.pos[0] = lastButton.pos[0] + toHit[0];
-                lastButton.pos[1] = lastButton.pos[1] + toHit[1];
-                newButton.pos[0] = lastButton.pos[0] + distance[0];
-                newButton.pos[1] = lastButton.pos[1] + distance[1];
-                newButton.speed[1] = -1 * newButton.speed[1];
-                break;
-            case 4:
-                toHit[1] = (getRadius(button) + wallMax[1]) - lastButton.pos[1];
-                toHit[0] = (toHit[1] / distance[1]) * distance[0];
-                distance[1] = -1 * (distance[1] + toHit[1]);
-                distance[0] = distance[0] + toHit[0];
-                lastButton.pos[0] = lastButton.pos[0] + toHit[0];
-                lastButton.pos[1] = lastButton.pos[1] + toHit[1];
-                newButton.pos[0] = lastButton.pos[0] + distance[0];
-                newButton.pos[1] = lastButton.pos[1] + distance[1];
-                newButton.speed[1] = -1 * newButton.speed[1];
-                break;
-        }
-        wallHit = isCollidedWithWalls(newButton);
-    }
-    return newButton;
-}
+calcStaticCollisions = (buttons) => {
+    let collidingButtons = [];
 
-function fixAllWallHits(buttons, ms) {
-    var newButtons = jumpForwardInTime(buttons, ms);
-    for (let i = 0; i < buttons.length; i++) {
-        if (isCollidedWithWalls(newButtons[i]) != 0) {
-            newButtons[i] = fixWallHit(buttons[i], ms);
-        }
-    }
-    return newButtons;
-}
+    buttons.forEach(button => {
+        buttons.forEach(targetButton => {
+            if (!(button.id == targetButton.id && button.color == targetButton.color)) {
+                if (doButtonsOverlap(button, targetButton)) {
 
-function findClosestWallhit(buttons) {
-    var ms = maxTime;
-    var realms = maxTime;
-    var lastButtons = buttons;
-    var newButtons = jumpForwardInTime(lastButtons, ms);
-    var currentButtons;
-    if (allIsCollidedWithWalls(newButtons).length != 0) {
-        while (ms > minTime) {
-            currentButtons = jumpForwardInTime(lastButtons, ms / 2);
-            if (allIsCollidedWithWalls(currentButtons).length != 0) {
-                newButtons = currentButtons;
-                realms = realms - ms / 2;
+                    collidingButtons.push({ btn: button, target: targetButton });
+
+                    let distance = getDistanceBetweenButtons(button, targetButton);
+                    let overlapSize = 0.5 * (distance - button.radius - targetButton.radius);
+
+                    // Displacing buttons from each other
+                    button.pos[0] -= overlapSize * (button.pos[0] - targetButton.pos[0]) / distance;
+                    button.pos[1] -= overlapSize * (button.pos[1] - targetButton.pos[1]) / distance;
+
+                    targetButton.pos[0] += overlapSize * (button.pos[0] - targetButton.pos[0]) / distance;
+                    targetButton.pos[1] += overlapSize * (button.pos[1] - targetButton.pos[1]) / distance;
+                }
             }
-            else {
-                lastButtons = currentButtons;
-            }
-            ms = ms / 2;
-        }
-    }
-    return {"newButtons": newButtons, "realms": realms, "ms" : ms };
+        });
+    });
+
+    return collidingButtons;
 }
 
-function findAndFixClosestWallHit(buttons) {
-    var closestState = findClosestWallhit(buttons);
-    if (closestState.ms != maxTime) {
-        closestState.newButtons = fixAllWallHits(buttons, closestState.realms);
-    }
-    return { "newButtons": closestState.newButtons, "realms": closestState.realms };
+calcDynamicCollisions = (collidingButtons) => {
+    collidingButtons.forEach(coll => {
+        let distance = getDistanceBetweenButtons(coll.btn, coll.target);
+
+        // Normal
+        let nx = (coll.target.pos[0] - coll.btn.pos[0]) / distance;
+        let ny = (coll.target.pos[1] - coll.btn.pos[1]) / distance;
+
+        // Tangent
+        let tx = -ny;
+        let ty = nx;
+
+        // Dot product tangent
+        let dpTan1 = coll.btn.velocity[0] * tx + coll.btn.velocity[1] * ty;
+        let dpTan2 = coll.target.velocity[0] * tx + coll.target.velocity[1] * ty;
+
+        // Dot product normal
+        let dpNorm1 = coll.btn.velocity[0] * nx + coll.btn.velocity[1] * ny;
+        let dpNorm2 = coll.target.velocity[0] * nx + coll.target.velocity[1] * ny;
+
+        // Conservation of momentum in 1D
+        let m1 = (dpNorm1 * (coll.btn.mass - coll.target.mass) + 2.0 * coll.target.mass * dpNorm2) / (coll.btn.mass + coll.target.mass);
+        let m2 = (dpNorm2 * (coll.target.mass - coll.btn.mass) + 2.0 * coll.btn.mass * dpNorm1) / (coll.btn.mass + coll.target.mass);
+
+        // Update button velocities
+        coll.btn.velocity[0] = tx * dpTan1 + nx * m1;
+        coll.btn.velocity[1] = ty * dpTan1 + ny * m1;
+
+        coll.target.velocity[0] = tx * dpTan2 + nx * m2;
+        coll.target.velocity[1] = ty * dpTan2 + ny * m2;
+    });
 }
 
+calcGoal = (ball) => {
+    let isGoal = "none";
+    if (ball.pos[0] - ball.radius <= 0 && (ball.pos[1] > 187 && ball.pos[1] < 313)) {
+        isGoal = "blue";
+    }
+    else if (ball.pos[0] + ball.radius >= 1000 && (ball.pos[1] > 187 && ball.pos[1] < 313)) {
+        isGoal = "red";
+    }
+    return isGoal;
+}
 
+exports.getDistanceBetweenButtons = getDistanceBetweenButtons;
+exports.updatePositions = updatePositions;
+exports.calcStaticCollisions = calcStaticCollisions;
+exports.calcDynamicCollisions = calcDynamicCollisions;
+exports.calcGoal = calcGoal;
 exports.getStartingButtonPositions = getStartingButtonPositions;
-exports.removeSpeed = removeSpeed;
-exports.findAndFixClosestWallHit = findAndFixClosestWallHit;
-exports.allIsStopped = allIsStopped;
+exports.findButton = findButton;

@@ -41,7 +41,7 @@ module.exports = function joinMatch(connection, response) {
         {
             "gameType": matches.get(response.payload.gameId).matchType,
             "gameState": {
-                "buttons": calculatePositions.removeSpeed(matches.get(response.payload.gameId).buttons)
+                "buttons": matches.get(response.payload.gameId).buttons
             }
         })
 }
