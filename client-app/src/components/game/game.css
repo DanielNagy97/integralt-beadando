@@ -11,18 +11,29 @@
 }
 
 .gameFirstName {
-    width: 50%;
+    width: 40%;
     padding: 10px;
     border-radius: 30px 0px 0px 0px;
     border-top: 1px solid black;
     border-left: 1px solid black;
     border-right: 1px solid black;
+    background-color: #E03F4C;
+    color: white;
 }
 
 .gameSecondName {
-    flex: 1;
+    width: 40%;
     padding: 10px;
     border-radius: 0px 30px 0px 0px;
+    border-top: 1px solid black;
+    border-right: 1px solid black;
+    background-color: #0000FF;
+    color: white;
+}
+
+.timer {
+    width: 20%;
+    padding: 10px;
     border-top: 1px solid black;
     border-right: 1px solid black;
 }
@@ -44,4 +55,22 @@ canvas {
     display: block;
     margin: auto;
     background-image: url('../../../public/soccer_field.png');
+}
+
+.startGameContainer {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(137, 137, 137, 0.6);
+    position: absolute;
+    z-index: 10;
+    padding: 10%
+}
+.startGameContent {
+    background-color: white; 
+    width: 50%;
+    margin: auto;
+    border-radius: 30px;
+    border: 2px solid var(--formBorder);
+    box-shadow: 3px 3px 3px 3px var(--formShadow);
+    padding: 50px;
 }

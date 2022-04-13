@@ -4,11 +4,13 @@ import './game.css'
 import { Player } from '../../models/player';
 import { Pages } from '../../enums/pages';
 import { GameTypes } from '../../enums/game-types';
+import { GameSetting } from '../../enums/game-setting';
 import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/playerSocketMessageHandler';
 import { EndGameResponsePayLoad, JoinResponsePayload, MoveResponsePayLoad } from '../../scripts/connectionHandler/models/responses/payloads';
 import { MessageType } from '../../scripts/connectionHandler/models/requestType';
 import { GameState } from '../../scripts/connectionHandler/models/custom-types';
 import LoadingSpin from "react-loading-spin";
+import Countdown, {zeroPad, CountdownApi} from "react-countdown";
 
 export interface Button {
   color: string,
@@ -31,7 +33,9 @@ export interface GameStates {
   score: {
     red: number,
     blue: number
-  }
+  };
+  gameSetting: GameSetting;
+  date: number;
 }
 
 class Game extends React.Component<GameProps, GameStates> {
@@ -42,9 +46,21 @@ class Game extends React.Component<GameProps, GameStates> {
       buttons: this.props.joinPayload.gameState.buttons,
       gameStates: [],
       loadedImageCounter: 0,
-      score: {red: 0, blue: 0}
+      score: {red: 0, blue: 0},
+      gameSetting: GameSetting.BASE,
+      date: Date.now()
     }
   }
+
+  //Variable and method to set the API and the reference to the countdown.
+  //This way we can start the timer when we want (in our case in the move function)
+  countdownApi: CountdownApi | null = null;
+
+  setRef = (countdown: Countdown | null): void => {
+    if (countdown) {
+      this.countdownApi = countdown.getApi();
+    }
+  };
 
   setButtonsForFrame(newButtons: Button[], duration: number) {
     return new Promise((resolve) => {
@@ -95,6 +111,11 @@ class Game extends React.Component<GameProps, GameStates> {
   }
 
   move() {
+    this.countdownApi && this.countdownApi.start();
+    this.setState({
+      gameSetting: GameSetting.STARTED
+    })
+
     this.props.messageHandler.sender.sendMoveRequest(
       this.props.player.id, this.props.gameId,
       {
@@ -146,10 +167,18 @@ class Game extends React.Component<GameProps, GameStates> {
     }
   }
 
+  timeIsUp() {
+    this.setState({
+      gameSetting: GameSetting.ENDED
+    })
+
+    this.props.messageHandler.sender.sendEndGameRequest(this.props.player.id, this.props.gameId);
+  }
+
   render() {
     return (
       <div>
-        {this.state.loadedImageCounter !== 3 &&
+        {this.state.loadedImageCounter !== 3 && this.state.gameSetting !== GameSetting.STARTED &&
           <div style={{ margin: 'auto', padding: '15%', textAlign: 'center' }}>
             <LoadingSpin
               width={'10px'}
@@ -159,15 +188,59 @@ class Game extends React.Component<GameProps, GameStates> {
             />
           </div>
         }
+        {this.state.loadedImageCounter === 3 && this.state.gameSetting !== GameSetting.STARTED &&
+          <div className={'startGameContainer'}>
+            <div className={'startGameContent'}>
+              <h2 style={{textAlign: 'center', padding: '10px'}}>
+                {this.state.gameSetting === GameSetting.ENDED ? 'Time is up' : 'Hello! Ready to play?'}
+              </h2>
+              <div style={{width: '100%', padding: '20px'}}>
+                <div style={{width: '50%', float: 'left', textAlign: 'center'}}> 
+                    <h4>Red team score: {this.state.score.red}</h4>
+                </div>
+                <div style={{marginLeft: '50%', textAlign: 'center'}}> 
+                    <h4>Blue team score: {this.state.score.blue}</h4>
+                </div>
+              </div>
+              <div style={{textAlign: 'center', padding: '10px'}}>
+                <BS.Button 
+                  variant="primary" 
+                  onClick={() => this.move()}
+                  style={{padding: '10px'}}
+                  size='lg'
+                >
+                    Start game
+                </BS.Button>
+                <BS.Button 
+                  variant="danger"
+                  onClick={() => this.leaveGame()}
+                  style={{padding: '10px', marginLeft: '10px'}}
+                  size='lg'
+                >
+                    Quit game
+                </BS.Button>
+              </div>
+            </div>
+          </div>
+        }
         {
           this.state.loadedImageCounter === 3 &&
           <div className={'gameComponent'}>
             <div className={'gameNameContainer'}>
               <div className={'gameFirstName'}>
-                {this.props.player.gameType === GameTypes.AI_VS_AI ? "AI" : this.props.player.name} {this.state.score.red}
+                 {this.props.player.gameType === GameTypes.AI_VS_AI ? "AI" : this.props.player.name} - {this.state.score.red}
+              </div>
+              <div className={'timer'} >
+                <Countdown 
+                  date={this.state.date + 300000}
+                  onComplete={() =>this.timeIsUp()}
+                  autoStart={false} 
+                  ref={this.setRef}
+                  renderer={props => <div>{zeroPad(props.minutes)} : {zeroPad(props.seconds)}</div>}
+                  />
               </div>
               <div className={'gameSecondName'}>
-                {this.props.player.gameType === GameTypes.PLAYER_VS_PLAYER ? "Other player's name" : "AI"} {this.state.score.blue}
+                {this.props.player.gameType === GameTypes.PLAYER_VS_PLAYER ? "Other player's name" : "AI"} - {this.state.score.blue}
               </div>
             </div>
             <div className={'gameSpace'}>
@@ -176,11 +249,8 @@ class Game extends React.Component<GameProps, GameStates> {
               </div>
             </div>
             <div className={'gameLeaveButtonContainer'}>
-              <BS.Button variant="primary" onClick={() => this.move()}>
-                move
-              </BS.Button>
               <BS.Button variant="danger" onClick={() => this.leaveGame()}>
-                Leave game
+                Quit game
               </BS.Button>
             </div>
           </div>
