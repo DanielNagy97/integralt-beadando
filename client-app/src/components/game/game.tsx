@@ -21,7 +21,6 @@ export interface Button {
 export interface GameProps {
   onPageChange: Function;
   player: Player;
-  joinPayload: JoinResponsePayload;
   gameId: string;
   messageHandler: PlayerSocketMessageHandler;
 }
@@ -36,6 +35,7 @@ export interface GameStates {
   };
   gameSetting: GameSetting;
   date: number;
+  isFirstGame: boolean;
 }
 
 class Game extends React.Component<GameProps, GameStates> {
@@ -43,12 +43,13 @@ class Game extends React.Component<GameProps, GameStates> {
     super(props)
 
     this.state = {
-      buttons: this.props.joinPayload.gameState.buttons,
+      buttons: [],
       gameStates: [],
       loadedImageCounter: 0,
       score: {red: 0, blue: 0},
       gameSetting: GameSetting.BASE,
-      date: Date.now()
+      date: Date.now(),
+      isFirstGame: true,
     }
   }
 
@@ -65,34 +66,53 @@ class Game extends React.Component<GameProps, GameStates> {
   setButtonsForFrame(newButtons: Button[], duration: number) {
     return new Promise((resolve) => {
       setTimeout(() => {
-        this.setState({
-          buttons: newButtons
-        })
+        if(this.state.gameSetting !== GameSetting.ENDED){
+          this.setState({
+            buttons: newButtons
+          })
+        }
         resolve("anything");
       }, duration);
     });
   }
 
   componentDidMount() {
-    this.props.messageHandler.receiver.onMessages.set(MessageType.move,
-      (payload: MoveResponsePayLoad) => {
-        let framePromises: Promise<any>[] = [];
+    this.props.messageHandler.receiver.onMessages.set(MessageType.join,
+      (payload: JoinResponsePayload) => {
         this.setState({
-          score: payload.score
+          buttons: payload.gameState.buttons
         });
-        payload.gameStates.forEach(gameState => {
-          framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons, gameState.timestamp))
-        })
 
-        Promise.all(framePromises).then(() => {
-          // All frames were drawn, requesting a new move
-          // Note: This will go on until thee is a move answer from the server!
-          this.move();
-        });
+        this.countdownApi && this.countdownApi.start();
+        this.setState({
+          isFirstGame: false,
+          gameSetting: GameSetting.STARTED,
+          date: Date.now()
+        })
+    
+        this.move()
       }
     );
-    // Sending an endGame message to the server:
-    // this.props.messageHandler.sender.sendEndGameRequest(this.props.player.id, this.props.gameId);
+
+    this.props.messageHandler.receiver.onMessages.set(MessageType.move,
+      (payload: MoveResponsePayLoad) => {
+        if(this.state.gameSetting !== GameSetting.ENDED){
+          let framePromises: Promise<any>[] = [];
+          this.setState({
+            score: payload.score
+          });
+          payload.gameStates.forEach(gameState => {
+            framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons, gameState.timestamp))
+          })
+
+          Promise.all(framePromises).then(() => {
+            // All frames were drawn, requesting a new move
+            this.move();
+          });
+        }
+      }
+    );
+
     // The final message from the server (The response of the endGame)
     this.props.messageHandler.receiver.onMessages.set(MessageType.endGame,
       (payload: EndGameResponsePayLoad) => {
@@ -103,29 +123,47 @@ class Game extends React.Component<GameProps, GameStates> {
     this.preloadImages();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps: GameProps, prevState: GameStates) {
+    if(prevProps.gameId != this.props.gameId) {
+      // Joining to the new game
+      this.props.messageHandler.sender.sendJoinRequest(this.props.player.id, this.props.gameId);
+    }
     // Drawing on state change
     if (this.state.loadedImageCounter === 3) {
       this.draw();
     }
   }
 
-  move() {
-    this.countdownApi && this.countdownApi.start();
-    this.setState({
-      gameSetting: GameSetting.STARTED
-    })
+  reStartGame() {
+    // Creating a whole new game
+    this.props.messageHandler.sender.sendCreateRequest(this.props.player.id, this.props.player.gameType);
+  }
 
-    this.props.messageHandler.sender.sendMoveRequest(
-      this.props.player.id, this.props.gameId,
-      {
-        button: { color: "blue", id: "2" },
-        direction: [100, 100]
-      }
-    )
+  startGame() {
+    if(this.state.isFirstGame) {
+      this.props.messageHandler.sender.sendJoinRequest(this.props.player.id, this.props.gameId);
+    }
+    else {
+      this.reStartGame();
+    }
+  }
+
+  move() {
+    if(this.state.gameSetting !== GameSetting.ENDED){
+      this.props.messageHandler.sender.sendMoveRequest(
+        this.props.player.id, this.props.gameId,
+        {
+          button: { color: "blue", id: "2" },
+          direction: [100, 100]
+        }
+      )
+    }
   }
 
   leaveGame() {
+    this.setState({
+      gameSetting: GameSetting.ENDED
+    });
     this.props.messageHandler.sender.sendLeavingRequest(this.props.player.id);
     this.props.onPageChange(Pages.CONNECT);
   }
@@ -205,7 +243,7 @@ class Game extends React.Component<GameProps, GameStates> {
               <div style={{textAlign: 'center', padding: '10px'}}>
                 <BS.Button 
                   variant="primary" 
-                  onClick={() => this.move()}
+                  onClick={() => this.startGame()}
                   style={{padding: '10px'}}
                   size='lg'
                 >
@@ -232,7 +270,7 @@ class Game extends React.Component<GameProps, GameStates> {
               </div>
               <div className={'timer'} >
                 <Countdown 
-                  date={this.state.date + 300000}
+                  date={this.state.date + 3000}
                   onComplete={() =>this.timeIsUp()}
                   autoStart={false} 
                   ref={this.setRef}

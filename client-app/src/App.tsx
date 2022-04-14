@@ -7,7 +7,7 @@ import { Player } from '../src/models/player';
 import { Pages } from '../src/enums/pages';
 import { PlayerSocketMessageHandler } from './scripts/connectionHandler/playerSocketMessageHandler';
 import { MessageType } from './scripts/connectionHandler/models/requestType';
-import { JoinResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
+import { CreateResponsePayload, JoinResponsePayload, PlayerListResponsePayload } from './scripts/connectionHandler/models/responses/payloads';
 import { ErrorPayload } from './scripts/connectionHandler/models/errors/payloads';
 import { ErrorHandler, ErrorMessage } from './scripts/errorHandler/errorHandler';
 import { GameTypes } from './enums/game-types';
@@ -18,7 +18,6 @@ export interface AppStates {
   page: Pages;
   player: Player;
   gameId: string;
-  joinPayload: JoinResponsePayload | undefined;
   messageHandler: PlayerSocketMessageHandler;
   showToast: boolean;
   toastMessage: string;
@@ -40,7 +39,6 @@ class App extends React.Component<AppProps, AppStates> {
         gameType: GameTypes.AI_VS_AI
       },
       gameId: '',
-      joinPayload: undefined,
       messageHandler: new PlayerSocketMessageHandler(this.onConnectionOpen, this.onConnectionClosed),
       showToast: false,
       toastMessage: '',
@@ -51,11 +49,9 @@ class App extends React.Component<AppProps, AppStates> {
   }
 
   componentDidMount(){
-    this.state.messageHandler.receiver.onMessages.set(MessageType.join,
-      (payload: JoinResponsePayload) => {
-        this.setState({
-          joinPayload: payload
-        })
+    this.state.messageHandler.receiver.onMessages.set(MessageType.create,
+      (payload: CreateResponsePayload) => {
+        this.setGameId(payload.gameId);
         this.setPage(Pages.GAME);
       }
     );
@@ -116,7 +112,7 @@ class App extends React.Component<AppProps, AppStates> {
       gameId: id
     })
   }
-
+  
   render() {
     return (
       <div>
@@ -129,11 +125,10 @@ class App extends React.Component<AppProps, AppStates> {
           />
         }
         {
-          this.state.page === Pages.GAME && this.state.joinPayload !== undefined &&
+          this.state.page === Pages.GAME &&
           <Game 
             onPageChange = {this.setPage}
             player = {this.state.player}
-            joinPayload = {this.state.joinPayload}
             gameId = {this.state.gameId}
             messageHandler =  {this.state.messageHandler}
           />

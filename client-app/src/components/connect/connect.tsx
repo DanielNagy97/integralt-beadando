@@ -5,7 +5,7 @@ import { PlayerSocketMessageHandler } from '../../scripts/connectionHandler/play
 import { Player } from '../../models/player';
 import { GameTypes } from '../../enums/game-types';
 import { MessageType } from '../../scripts/connectionHandler/models/requestType';
-import { CreateResponsePayload, NewPlayerResponsePayload } from '../../scripts/connectionHandler/models/responses/payloads';
+import { NewPlayerResponsePayload } from '../../scripts/connectionHandler/models/responses/payloads';
 
 export interface ConnectProps {
   onPlayerConnect: Function;
@@ -15,7 +15,6 @@ export interface ConnectProps {
 
 export interface ConnectStates {
   player: Player,
-  selectedGameType: GameTypes,
   isFormValidated: boolean,
   isNameInvalid: boolean,
   opponentButtons: {
@@ -37,7 +36,6 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
         name: "",
         gameType: GameTypes.AI_VS_AI
       },
-      selectedGameType: GameTypes.AI_VS_AI,
       isFormValidated: false,
       isNameInvalid: false,
       opponentButtons: {
@@ -59,17 +57,9 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
 
         this.props.onPlayerConnect(this.state.player);
 
-        if(this.state.selectedGameType !== undefined){
-          this.props.messageHandler.sender.sendCreateRequest(this.state.player.id, this.state.selectedGameType);
+        if(this.state.player.gameType !== undefined){
+          this.props.messageHandler.sender.sendCreateRequest(this.state.player.id, this.state.player.gameType);
         }
-      }
-    );
-
-    this.props.messageHandler.receiver.onMessages.set(MessageType.create,
-      (payload: CreateResponsePayload) => {
-        this.props.setGameId(payload.gameId);
-
-        this.props.messageHandler.sender.sendJoinRequest(this.state.player.id, payload.gameId);
       }
     );
   }
@@ -126,8 +116,8 @@ class Connect extends React.Component<ConnectProps, ConnectStates> {
     })
 
     this.setState({
-      selectedGameType: type
-    })
+      player: {...this.state.player, gameType: type}
+    });
   }
 
   render() {
