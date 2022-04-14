@@ -3,14 +3,17 @@ const errorSender = require("../methods/errorSender");
 const normalSender = require("../methods/normalSender");
 
 module.exports = function removePlayer(connection, response) {
-    const removedPlayerName = players.get(response.payload.id).name;
     if (players.has(response.payload.id)) {
         
         const matchesIterator = matches.keys();
         var currentMatch = matchesIterator.next();
+        var endedMatch;
+        var endedMatchId;
 
         while (!currentMatch.done) {
             if (matches.get(currentMatch.value).players.includes(response.payload.id)) {
+                endedMatchId = currentMatch.value;
+                endedMatch = matches.get(endedMatchId);
                 matches.get(currentMatch.value).players = matches.get(currentMatch.value).players.filter(item => item != response.payload.id);
                 switch (matches.get(currentMatch.value).matchType) {
                     case "ai-vs-ai":
@@ -30,10 +33,10 @@ module.exports = function removePlayer(connection, response) {
                         }
                         break;
                     }
-                normalSender(connection, "endGame", { "gameId": currentMacth.value, "finalScore": matches.get(currentMatch.value).points });
+                }
+                currentMatch = matchesIterator.next();
             }
-            currentMatch = matchesIterator.next();
-        }
+        normalSender(connection, "endGame", { "gameId": endedMatchId, "finalScore": endedMatch.points });
 
     }
     else {
