@@ -49,6 +49,12 @@ sendGameStates = (myMatch, response, gameStates) => {
     });
 }
 
+removeExtraInformationFromButtons = (buttons) => {
+    return buttons.map((btn) => {
+        return {color: btn.color, id: btn.id, pos: btn.pos}
+    })
+}
+
 module.exports = function move(connection, response) {
     if (!isValidPlayer(connection, response) || !isValidMatch(connection, response)) {
         return;
@@ -67,7 +73,13 @@ module.exports = function move(connection, response) {
 
     let ellapsedTime = 0;
     // First frame, deep copy with json stringify and parse
-    gameStates.push({ "gameState": { "buttons": JSON.parse(JSON.stringify(myMatch.buttons)) }, "timestamp": ellapsedTime });
+    gameStates.push({
+        "gameState": {
+            "buttons": removeExtraInformationFromButtons(JSON.parse(JSON.stringify(myMatch.buttons)))
+            },
+            "timestamp": ellapsedTime
+        }
+    );
 
     let isStopped = false;
     while (!isStopped) {
@@ -87,7 +99,7 @@ module.exports = function move(connection, response) {
         gameStates.push(
             {
                 "gameState": {
-                    "buttons": JSON.parse(JSON.stringify(myMatch.buttons))
+                    "buttons": removeExtraInformationFromButtons(JSON.parse(JSON.stringify(myMatch.buttons)))
                 },
                 "timestamp": ellapsedTime
             }
