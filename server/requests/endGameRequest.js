@@ -1,5 +1,6 @@
 const { players, matches } = require("../data/hashmaps");
 const errorSender = require("../methods/errorSender");
+const normalSender = require("../methods/normalSender");
 
 module.exports = function removePlayer(connection, response) {
     const removedPlayerName = players.get(response.payload.id).name;
@@ -28,12 +29,12 @@ module.exports = function removePlayer(connection, response) {
                             );
                         }
                         break;
-                }
+                    }
+                normalSender(connection, "endGame", { "gameId": currentMacth.value, "finalScore": matches.get(currentMatch.value).points });
             }
             currentMatch = matchesIterator.next();
         }
-        // players.delete(response.payload.id);
-        // console.log("Removed player " + response.payload.id + " named " + removedPlayerName);
+
     }
     else {
         errorSender(connection, "2", { "id": response.payload.id })
