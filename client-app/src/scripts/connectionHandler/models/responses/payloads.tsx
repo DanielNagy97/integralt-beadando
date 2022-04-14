@@ -28,7 +28,6 @@ export interface MoveResponsePayLoad {
 }
 
 export interface EndGameResponsePayLoad {
-  id: number,
   gameId: number,
   finalScore: Score
 }

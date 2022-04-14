@@ -76,12 +76,11 @@ export class MessageSender {
     this.socketConnection.send(message);
   }
 
-  sendEndGameRequest(id: string, gameId: string) {
+  sendEndGameRequest(id: string) {
     const message: EndGameRequest = {
       type: MessageType.endGame,
       payload: {
-        id: id,
-        gameId: gameId
+        id: id
       }
     };
     this.socketConnection.send(message);

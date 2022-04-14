@@ -105,7 +105,7 @@ class Game extends React.Component<GameProps, GameStates> {
     // The final message from the server (The response of the endGame)
     this.props.messageHandler.receiver.onMessages.set(MessageType.endGame,
       (payload: EndGameResponsePayLoad) => {
-        console.log(payload.finalScore);
+        this.setState({score: payload.finalScore});
       }
     );
     
@@ -211,7 +211,7 @@ class Game extends React.Component<GameProps, GameStates> {
       gameSetting: GameSetting.ENDED
     })
 
-    this.props.messageHandler.sender.sendEndGameRequest(this.props.player.id, this.props.gameId);
+    this.props.messageHandler.sender.sendEndGameRequest(this.props.player.id);
   }
 
   render() {

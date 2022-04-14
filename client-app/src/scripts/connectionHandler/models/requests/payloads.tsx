@@ -31,6 +31,5 @@ export interface MoveRequestPayLoad {
 }
 
 export interface EndGameRequestPayLoad {
-  id: string,
-  gameId: string
+  id: string
 }
