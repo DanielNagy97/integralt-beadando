@@ -87,14 +87,15 @@ class Game extends React.Component<GameProps, GameStates> {
       (payload: MoveResponsePayLoad) => {
         if(this.state.gameSetting !== GameSetting.ENDED){
           let framePromises: Promise<any>[] = [];
-          this.setState({
-            score: payload.score
-          });
+
           payload.gameStates.forEach(gameState => {
             framePromises.push(this.setButtonsForFrame(gameState.gameState.buttons, gameState.timestamp))
           })
 
           Promise.all(framePromises).then(() => {
+            this.setState({
+              score: payload.score
+            });
             // All frames were drawn, requesting a new move
             this.move();
           });
