@@ -79,18 +79,7 @@ class Game extends React.Component<GameProps, GameStates> {
   componentDidMount() {
     this.props.messageHandler.receiver.onMessages.set(MessageType.join,
       (payload: JoinResponsePayload) => {
-        this.setState({
-          buttons: payload.gameState.buttons
-        });
-
-        this.countdownApi && this.countdownApi.start();
-        this.setState({
-          isFirstGame: false,
-          gameSetting: GameSetting.STARTED,
-          date: Date.now()
-        })
-    
-        this.move()
+        this.onGameStart(payload.gameState.buttons);
       }
     );
 
@@ -132,6 +121,18 @@ class Game extends React.Component<GameProps, GameStates> {
     if (this.state.loadedImageCounter === 3) {
       this.draw();
     }
+  }
+
+  onGameStart(buttonsStartingPositions: Button[]) {
+    this.countdownApi && this.countdownApi.start();
+    this.setState({
+      buttons: buttonsStartingPositions,
+      isFirstGame: false,
+      gameSetting: GameSetting.STARTED,
+      date: Date.now()
+    })
+
+    this.move()
   }
 
   reStartGame() {
@@ -270,7 +271,7 @@ class Game extends React.Component<GameProps, GameStates> {
               </div>
               <div className={'timer'} >
                 <Countdown 
-                  date={this.state.date + 3000}
+                  date={this.state.date + 300000}
                   onComplete={() =>this.timeIsUp()}
                   autoStart={false} 
                   ref={this.setRef}
