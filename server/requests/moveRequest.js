@@ -44,10 +44,7 @@ sendGameStates = (myMatch, response, gameStates) => {
         normalSender(players.get(element).connection, "move", {
             "playerId": response.payload.id,
             "gameStates": gameStates,
-            "score": {
-                "red": myMatch.points[0],
-                "blue": myMatch.points[1]
-            }
+            "score": myMatch.points
         });
     });
 }
@@ -77,7 +74,7 @@ module.exports = function move(connection, response) {
         let goal = calculatePositions.calcGoal(ball)
         if (goal != "none") {
             myMatch.buttons = calculatePositions.getStartingButtonPositions();
-            goal == "red" ? myMatch.points[0]++ : myMatch.points[1]++;
+            goal == "red" ? myMatch.points.red++ : myMatch.points.blue++;
             ellapsedTime += updateTime * 100;
             // Sending the goal frame and the starting position frame to the client!
         }
