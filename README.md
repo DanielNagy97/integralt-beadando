@@ -49,7 +49,7 @@ Használt portok:
 
 
 ## Az alkalmazás használata
-Az alkalmazást megnyitva egy zöld (success) toast üzenet tájékoztat minket arról, hogy a szerverhez való csatlakozás sikeres volt és él a kapcsolat. Ha az alkalmazás használata során szürke toast üzenetet kapunk, az azt jelöli, hogy a szerverrel való kapcsolat megszakadt. Ilyen esetben az oldal újratöltésével próbálkozhatunk az újbóli kapcsolatfelvétellel.
+Az alkalmazást megnyitva egy zöld (success) toast üzenet tájékoztat minket arról, hogy a szerverhez való csatlakozás sikeres volt és él a kapcsolat. Ha az alkalmazás használata során szürke toast üzenetet kapunk, az azt jelöli, hogy a szerverrel való kapcsolat megszakadt. Ilyen esetben az alkalmazás megpróbálja újból felvenni a kapcsolatot a szerverrel. Ha a szerver helyreáll, úgy automatikusan újracsatlakozik a klines.
 
 A játékosnak ki kell választania az ellenfelét, majd egy név megadásával léphet be a játékba.
 
@@ -61,7 +61,7 @@ Játékmódok:
 Jelen verzióban az AI vs AI játékra van lehetősége a felhasználónak.
 A játékot elindítva megjelenik a játéktér és a felhasználó végignézheti a két AI játékos küzdelmét.
 
-A játékot bármikor elhagyhatjuk a `Leave Game` gomb megnyomásával, ami a főmenübe irányít bennünket.
+A játékot bármikor elhagyhatjuk a `Quit Game` gomb megnyomásával, ami a főmenübe irányít bennünket.
 
 
 ## Játék
@@ -69,7 +69,7 @@ A játékot bármikor elhagyhatjuk a `Leave Game` gomb megnyomásával, ami a f�
 
 [Egy szemléltető videó az eredeti játékról](https://www.youtube.com/watch?v=fAWbhupbSSo)
 
-A játékosok felváltva lőnek egy-egy kiválasztott button-játékossal. Ha a labda az ellenfél kapujába csúszik, pontot szerzünk. A játék a maximális pont megszerzéséig tart.
+A játékosok felváltva lőnek egy-egy kiválasztott button-nal. Ha a labda az ellenfél kapujába csúszik, pontot szerzünk. Egy meccs időtartama 5 perc. Ezalatt az idő alatt kell a játékosoknak a lehető legtöbb pontot összegyűjteni. A legtöbb pontot szerző játékos nyeri a meccset.
 
 ### Buttonok kezdő pozíciója:
 ```javascript
@@ -96,6 +96,8 @@ Ahol a `white` színű button a labda.
 - **button átmérő**: 20px
 - **labda átmérő**: 10px
 
+### A játék időtartama:
+Egy meccs időtartama *5 perc*.
 
 ## Üzenetek
 A kliens és a szerver websocketen kommunikál egymással a 9000-es porton. Az üzenetek `json` dokumentumok formájában kerülnek továbbításra az alábbi szerkezet szerint:
@@ -116,7 +118,8 @@ Minden üzenetnek rendelkeznie kell `type` üzenet-típusjelölő mezővel, ille
 | _playerList_  | `{"id": "0"}`      | `{"list": ["test1", "test2"]}` |
 | _create_      | `{"id": "0", "gameType": "player-vs-ai"}` | `{"gameId": "0"}` | 
 | _join_        | `{"id": "0", "gameId": "0"}` | `{"gameType": "ai-vs-ai", "gameState": "buttons": []}` |
-| _move_        | `{"id": "0", "gameId: "1", "moveAction": {}}` | `{"playerId": "0", "gameStates": []}` |
+| _move_        | `{"id": "0", "gameId: "1", "moveAction": {}}` | `{"playerId": "0", "gameStates": [], "score": {}}` |
+| _endGame_     | `{"id": "0", "gameId": "0"}` | `{"id": "0", "gameId": "0", "finalScore": {} }` |
 
 
 Kiegészítések:
@@ -153,6 +156,13 @@ Kiegészítések:
     - `"player-vs-ai"`
     - `"player-vs-player"`
 
+5. A `score` és `finalScore` csupán elnevezésben különbözik. Felépítésük a _move_ és _endGame_ szerver válaszokban:
+```json
+"score": {
+    "red": 1,
+    "blue": 3
+}
+``` 
 
 ## Error üzenetek
 Error üzeneteket a szerver küldhet a kliensnek.
