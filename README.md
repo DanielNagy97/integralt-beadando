@@ -49,7 +49,7 @@ Használt portok:
 
 
 ## Az alkalmazás használata
-Az alkalmazást megnyitva egy zöld (success) toast üzenet tájékoztat minket arról, hogy a szerverhez való csatlakozás sikeres volt és él a kapcsolat. Ha az alkalmazás használata során szürke toast üzenetet kapunk, az azt jelöli, hogy a szerverrel való kapcsolat megszakadt. Ilyen esetben az oldal újratöltésével próbálkozhatunk az újbóli kapcsolatfelvétellel.
+Az alkalmazást megnyitva egy zöld (success) toast üzenet tájékoztat minket arról, hogy a szerverhez való csatlakozás sikeres volt és él a kapcsolat. Ha az alkalmazás használata során szürke toast üzenetet kapunk, az azt jelöli, hogy a szerverrel való kapcsolat megszakadt. Ilyen esetben az alkalmazás megpróbálja újból felvenni a kapcsolatot a szerverrel. Ha a szerver helyreáll, úgy automatikusan újracsatlakozik a kliens.
 
 A játékosnak ki kell választania az ellenfelét, majd egy név megadásával léphet be a játékba.
 
@@ -59,17 +59,19 @@ Játékmódok:
 - Player vs Player
 
 Jelen verzióban az AI vs AI játékra van lehetősége a felhasználónak.
-A játékot elindítva megjelenik a játéktér és a felhasználó végignézheti a két AI játékos küzdelmét.
 
-A játékot bármikor elhagyhatjuk a `Leave Game` gomb megnyomásával, ami a főmenübe irányít bennünket.
+A név és a játékmód megadása után a `Connect with name` gomb segítségével léphetünk be a játékba.
 
+A játék üdvözöl egy _Hello! Ready to play?_ üzenettel, majd a `Start game` gombbal indíthatjuk el a játékot. Megjelenik a játéktér és a felhasználó végignézheti a két AI játékos küzdelmét. A játék 5 percig tart, majd kiírásra kerül a végső eredmény. A felhasználónak lehetősége van a játék újboli elindítására szintén a `Start game` gomb megnyomásával. 
+
+A játékot bármikor elhagyhatjuk a `Quit Game` gomb megnyomásával, ami a főmenübe irányít bennünket. Ilyenkor törlésre kerül a bejegyzett felhasználónk.
 
 ## Játék
 [Gombfoci hivatalos játékszabály](https://web.archive.org/web/20101007112254/http://www.gombfoci.hu/msz/about/jatekszabaly.htm#)
 
 [Egy szemléltető videó az eredeti játékról](https://www.youtube.com/watch?v=fAWbhupbSSo)
 
-A játékosok felváltva lőnek egy-egy kiválasztott button-játékossal. Ha a labda az ellenfél kapujába csúszik, pontot szerzünk. A játék a maximális pont megszerzéséig tart.
+A játékosok felváltva lőnek egy-egy kiválasztott button-nal. Ha a labda az ellenfél kapujába csúszik, pontot szerzünk. Egy meccs időtartama 5 perc. Ezalatt az idő alatt kell a játékosoknak a lehető legtöbb pontot összegyűjteni. A legtöbb pontot szerző játékos nyeri a meccset.
 
 ### Buttonok kezdő pozíciója:
 ```javascript
@@ -96,6 +98,9 @@ Ahol a `white` színű button a labda.
 - **button átmérő**: 20px
 - **labda átmérő**: 10px
 
+### A játék időtartama:
+Egy meccs időtartama *5 perc*.
+
 
 ## Üzenetek
 A kliens és a szerver websocketen kommunikál egymással a 9000-es porton. Az üzenetek `json` dokumentumok formájában kerülnek továbbításra az alábbi szerkezet szerint:
@@ -116,7 +121,8 @@ Minden üzenetnek rendelkeznie kell `type` üzenet-típusjelölő mezővel, ille
 | _playerList_  | `{"id": "0"}`      | `{"list": ["test1", "test2"]}` |
 | _create_      | `{"id": "0", "gameType": "player-vs-ai"}` | `{"gameId": "0"}` | 
 | _join_        | `{"id": "0", "gameId": "0"}` | `{"gameType": "ai-vs-ai", "gameState": "buttons": []}` |
-| _move_        | `{"id": "0", "gameId: "1", "moveAction": {}}` | `{"playerId": "0", "gameStates": []}` |
+| _move_        | `{"id": "0", "gameId: "1", "moveAction": {}}` | `{"playerId": "0", "gameStates": [], "score": {}}` |
+| _endGame_     | `{"id": "0"}` | `{"gameId": "0", "finalScore": {} }` |
 
 
 Kiegészítések:
@@ -153,6 +159,13 @@ Kiegészítések:
     - `"player-vs-ai"`
     - `"player-vs-player"`
 
+5. A `score` és `finalScore` csupán elnevezésben különbözik. Felépítésük a _move_ és _endGame_ szerver válaszokban:
+```json
+"score": {
+    "red": 1,
+    "blue": 3
+}
+```
 
 ## Error üzenetek
 Error üzeneteket a szerver küldhet a kliensnek.
@@ -181,3 +194,14 @@ a `payload` pedig error üzenetek esetében egy olyan objektum, amelyben az `err
 | `"5"`     | `{"gameType": "pvp"}` | _Nem jó gameType megadva_                |
 | `"6"`     | `{"gameId": "0"}`     | _Egy player lelépett_                    |
 
+
+## Forgatókönyv a kommunikációra
+1. A kliens csatlakozik a websocket szerverhez, létrejön a kétirányú kapcsolat. A továbbiakban az üzenetek a fenti sémák szerint kerülnek megalkotásra.
+2. A kliens egy `newPlayer` üzenetet küld a szervernek, válaszként visszakapja az egyedi _id_-jét.
+3. Az _id_ segítségével a kliens létre tud hozni egy meccset a `create` üzenet segítségével. Válaszként visszakapja a meccs azonasítóját(_gameId_).
+4. Ha már létezik a meccs, a kliens egy `join` üzenetet küldve léphet be a játékba, válaszként megkapja a játék kezdő állását.
+5. A játék közben kétféle üzenetet küldhet a kliens:
+    - `move` üzenettel a játékos lépését továbbítja a szerver felé. Válaszként a lépés hatására lezajlott játékállapotot kapja vissza, amely alapján ki tudja majd rajzolni a megfelelő képkockákat.
+    - `endGame` üzenet a játék befejeztével küldendő. A játék leteltével küldődik automatikusan, válaszként pedig a végső játékeredményt kapja meg a kliens.
+6. Az `endGame` üzenet után még a játékos benne marad a rendszerben, `create` és `join` üzenetekkel új meccset tud kezdeni.
+7. A játék közben a `leaving` üzenettel bármikor megszakíthatja az aktuális játékot a kliens és egyúttal kiléphet az alkalmazásból.
