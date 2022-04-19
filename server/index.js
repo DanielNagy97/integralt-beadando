@@ -7,8 +7,8 @@ const leavingRequest = require("./requests/leavingRequest");
 const playerListRequest = require("./requests/playerListRequest");
 const createRequest = require("./requests/createRequest");
 const joinRequest = require("./requests/joinRequest");
-const calculatePositions = require("./methods/calculatePositions");
 const moveRequest = require("./requests/moveRequest");
+const endGameRequest = require("./requests/endGameRequest");
 
 app.use(cors());
 app.listen(3001, () => console.log("Listening Express on port 3001"));
@@ -50,24 +50,9 @@ wsServer.on("request", request => {
         if (response.type == "move") {
             moveRequest(connection, response);
         }
+
+        if (response.type == "endGame") {
+            endGameRequest(connection, response);
+        }
     });
 });
-
-/*
-var buttons = calculatePositions.getStartingButtonPositions();
-var timeSpent = 0;
-var nextState;
-buttons[0].pos[0] = 20.5;
-buttons[0].pos[1] = 21;
-buttons[0].speed[0] = -200;
-buttons[0].speed[1] = -100;
-buttons[1].pos[0] = 20.5;
-buttons[1].pos[1] = 21;
-buttons[1].speed[0] = -100;
-buttons[1].speed[1] = -100;
-while (calculatePositions.allIsStopped(buttons).length != 0) {
-    nextState = calculatePositions.findAndFixClosestWallHit(buttons);
-    buttons = nextState.newButtons;
-    timeSpent += nextState.realms;
-}
-*/

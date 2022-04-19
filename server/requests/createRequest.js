@@ -33,7 +33,7 @@ module.exports = function createMatch(connection, response) {
         matches.set(matchId, {
             "players": [],
             "buttons": calculatePositions.getStartingButtonPositions(),
-            "points": [0, 0],
+            "points": {"red" : 0, "blue" : 0},
             "matchType": response.payload.gameType,
             "nextMove": 0
         });
