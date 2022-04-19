@@ -67,7 +67,7 @@ canvas {
 }
 .startGameContent {
     background-color: white; 
-    width: 50%;
+    width: 60%;
     margin: auto;
     border-radius: 30px;
     border: 2px solid var(--formBorder);

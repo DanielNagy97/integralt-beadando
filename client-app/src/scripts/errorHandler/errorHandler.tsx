@@ -27,7 +27,7 @@ export class ErrorHandler {
 
       case Errorcode.idNotExists:
         errorMessageObject = {
-          message: "The id: " + payload.errorDetails.id + " not exists!",
+          message: "The id: " + payload.errorDetails.id + " not exists, the match has been interrupted!",
           type: "danger",
           headerMessage: "Error"
         }
